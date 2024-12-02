@@ -16,7 +16,7 @@ with open("app.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
 # Sidebar for file uploader or default dataset
-st.sidebar.image("https://github.com/roxxaaa/SARIMAX/blob/f5871f4dd7ad0683f59d6382b70fdea892e1886d/images/DALogo.jpg", use_column_width=True)
+st.sidebar.image("images/DALogo.jpg", use_column_width=True)
 
 # File uploader or default dataset handling
 uploaded_file = st.sidebar.file_uploader("Upload your CSV file", type=["csv"])
