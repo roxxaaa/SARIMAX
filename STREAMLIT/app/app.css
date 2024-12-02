@@ -1,0 +1,54 @@
+/* Background and font color for the app */
+.stApp {
+    background-color: #ffffff;
+}
+
+/* Title styling - Change title color to black */
+h1, h2, h3, h4, h5, h6 {
+    color: black !important; /* Change title color to black */
+    text-align: center;
+}
+
+/* Description styling - Change description color to black */
+.stMarkdown p, .stMetric {
+    color: black !important; /* Change description color to black */
+    text-align: center; /* Center the text */
+}
+
+/* Sidebar styling - Ensure text is black */
+.sidebar .stSidebar {
+    color: black !important; /* Change sidebar text color to black */
+}
+
+/* Centering all other text, markdown, tables, and metrics */
+body, .stApp, .stDataFrame, .stTable {
+    color: black !important; /* Change other font color to white */
+    text-align: center;
+}
+
+/* Custom styling for the sidebar collapse/expand button */
+.css-1d391kg {
+    background-color: #5f7c3e !important;
+    color: white !important; /* Change button text color to white */
+    border-radius: 50%; 
+    padding: 10px; 
+    border: 2px solid white; /* Keep the white border */
+}
+
+/* Sidebar button hover effect */
+.css-1d391kg:hover {
+    background-color: #7fbf4f !important;
+}
+
+/* Styling for buttons */
+button, .stButton button {
+    background-color: #1A4D2E;
+    color: white; /* Ensure button text is white */
+}
+
+/* Center tables and DataFrame content */
+.stDataFrame, .stTable {
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center; /* Center the content within the table */
+}
