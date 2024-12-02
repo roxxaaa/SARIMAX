@@ -12,11 +12,11 @@ st.title("Application of SARIMAX for Agricultural Rice Production")
 st.write("Seasonal Auto-Regressive Integrated Moving Average with Exogenous Regressor")
  
 # CSS for styling
-with open("C:/Users/ACER/AppData/Local/Programs/Python/Python312/STREAMLIT/app/app.css") as f:
+with open("https://github.com/roxxaaa/SARIMAX/blob/f5871f4dd7ad0683f59d6382b70fdea892e1886d/app.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
 # Sidebar for file uploader or default dataset
-st.sidebar.image("C:/Users/ACER/AppData/Local/Programs/Python/Python312/STREAMLIT/images/DALogo.jpg", use_column_width=True)
+st.sidebar.image("https://github.com/roxxaaa/SARIMAX/blob/f5871f4dd7ad0683f59d6382b70fdea892e1886d/images/DALogo.jpg", use_column_width=True)
 
 # File uploader or default dataset handling
 uploaded_file = st.sidebar.file_uploader("Upload your CSV file", type=["csv"])
@@ -29,7 +29,7 @@ if uploaded_file:
     df = pd.read_csv(uploaded_file)  # Read the uploaded file into a dataframe
     st.write("Dataset uploaded successfully!")
 else:
-    default_path = "C:/Users/ACER/AppData/Local/Programs/Python/Python312/STREAMLIT/data/aliciasanmateodatasets.csv"
+    default_path = "https://github.com/roxxaaa/SARIMAX/blob/f5871f4dd7ad0683f59d6382b70fdea892e1886d/data/aliciasanmateodatasets.csv.csv"
     if os.path.exists(default_path):
         df = pd.read_csv(default_path)  # Load from the default path if the file exists or dataset
         st.write("Using default dataset!")
