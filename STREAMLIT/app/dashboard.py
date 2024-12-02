@@ -7,34 +7,50 @@ from obj3Sarimax import objective3_sarimax
 from obj4 import objective4
 
 # Streamlit app configuration
-st.set_page_config(page_title="SARIMAX for Rice Production", page_icon=":ear_of_rice:", layout="wide")
+st.set_page_config(page_title="SARIMAX for Rice Production", page_icon="🌾", layout="wide")
 st.title("Application of SARIMAX for Agricultural Rice Production")
 st.write("Seasonal Auto-Regressive Integrated Moving Average with Exogenous Regressor")
 
 # CSS for styling
-with open("C:/Users/ACER/AppData/Local/Programs/Python/Python312/STREAMLIT/app/app.css") as f:
-    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+try:
+    css_path = "app.css"
+    if os.path.exists(css_path):
+        with open(css_path) as f:
+            st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+    else:
+        st.warning("CSS file not found.")
+except Exception as e:
+    st.error(f"Error loading CSS: {e}")
 
 # Sidebar for file uploader or default dataset
-st.sidebar.image("C:/Users/ACER/AppData/Local/Programs/Python/Python312/STREAMLIT/images/DALogo.jpg", use_column_width=True)
+try:
+    st.sidebar.image("images/DALogo.jpg", use_column_width=True)
+except Exception as e:
+    st.sidebar.warning(f"Logo not found: {e}")
 
 # File uploader or default dataset handling
 uploaded_file = st.sidebar.file_uploader("Upload your CSV file", type=["csv"])
+default_path = "data/aliciasanmateodatasets.csv"
 
 # Initialize the 'df' variable
 df = None
 
 # Check if an uploaded file exists or use the default path
 if uploaded_file:
-    df = pd.read_csv(uploaded_file)  # Read the uploaded file into a dataframe
-    st.write("Dataset uploaded successfully!")
+    try:
+        df = pd.read_csv(uploaded_file)  # Read the uploaded file into a dataframe
+        st.write("Dataset uploaded successfully!")
+    except Exception as e:
+        st.error(f"Error reading uploaded file: {e}")
 else:
-    default_path = "C:/Users/ACER/AppData/Local/Programs/Python/Python312/STREAMLIT/data/aliciasanmateodatasets.csv"
     if os.path.exists(default_path):
-        df = pd.read_csv(default_path)  # Load from the default path if the file exists or dataset
-        st.write("Using default dataset!")
+        try:
+            df = pd.read_csv(default_path)  # Load from the default path if the file exists or dataset
+            st.write("Using default dataset!")
+        except Exception as e:
+            st.error(f"Error reading default dataset: {e}")
     else:
-        st.error("Please upload a dataset or make sure the default file exists.")
+        st.error("Default dataset not found. Please upload a dataset.")
         st.stop()  # Stop execution if no dataset
 
 # Check if dataframe is loaded
