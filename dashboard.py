@@ -12,7 +12,7 @@ st.title("Application of SARIMAX for Agricultural Rice Production")
 st.write("Seasonal Auto-Regressive Integrated Moving Average with Exogenous Regressor")
  
 # CSS for styling
-with open("https://github.com/roxxaaa/SARIMAX/blob/f5871f4dd7ad0683f59d6382b70fdea892e1886d/app.css") as f:
+with open("app.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
 # Sidebar for file uploader or default dataset
