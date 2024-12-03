@@ -1,9 +1,8 @@
 streamlit
 pandas
-plotly
-statsmodels
-seaborn
-scikit-learn
 reportlab
+seaborn
 matplotlib
+scikit-learn
+statsmodels
 
