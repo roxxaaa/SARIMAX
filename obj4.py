@@ -44,19 +44,19 @@ def objective4(df, selected_municipalities, start_date, end_date):
     correlation_matrix = df_numeric.corr()
 
     # Sidebar options to display the correlation matrix and heatmap
-    if st.sidebar.checkbox("Show Correlation Matrix"):
-        st.write(f"Correlation Matrix for {', '.join(selected_municipalities)}")
-        st.write(correlation_matrix)
+    st.write(f"Correlation Matrix for {', '.join(selected_municipalities)}")
+    st.write(correlation_matrix)
 
-    if st.sidebar.checkbox("Show Correlation Heatmap"):
-        st.subheader("Correlation Heatmap")
-        fig, ax = plt.subplots(figsize=(12, 10))
-        sns.heatmap(
-            correlation_matrix, annot=True, fmt=".2f", cmap='coolwarm', 
-            cbar=True, square=True, linewidths=0.5, ax=ax
-        )
-        ax.set_title("Correlation Heatmap", fontsize=16)
-        st.pyplot(fig)
+    # Automatically display the heatmap
+    st.subheader("Correlation Heatmap")
+    fig, ax = plt.subplots(figsize=(12, 10))  # Increase figure size for better readability
+    sns.heatmap(
+        correlation_matrix, annot=True, fmt=".2f", cmap='coolwarm', 
+        cbar=True, square=True, linewidths=0.5, ax=ax, 
+        annot_kws={"size": 10}  # Adjust font size for readability
+    )
+    ax.set_title("Correlation Heatmap", fontsize=16)
+    st.pyplot(fig)
 
     # Extract strong correlations
     st.subheader("Strong Correlations Summary")
