@@ -69,7 +69,7 @@ def objective4(df, selected_municipalities, start_date, end_date):
 
     if not high_corr.empty:
         st.write("Strong correlations found:")
-        st.dataframe(high_corr, help="Table of variable pairs with strong correlations.")
+        st.dataframe(high_corr)  # Removed `help` parameter
 
         # **Dynamic Key Takeaways**
         st.subheader("Key Takeaways for the Municipal Agricultural Office")
@@ -95,6 +95,6 @@ def objective4(df, selected_municipalities, start_date, end_date):
     st.subheader("Recommendations for Rice Production Growth")
     if recommendations:
         for i, rec in enumerate(recommendations, 1):
-            st.write(f"{i}. {rec}", help="Recommendations derived from the correlational analysis.")
+            st.write(f"{i}. {rec}")  # Removed `help` parameter
     else:
         st.write("No actionable insights found. Collect more data or refine analysis criteria.")
