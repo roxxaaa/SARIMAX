@@ -88,10 +88,10 @@ def objective4(df, selected_municipalities, start_date, end_date):
     st.write("**The strong correlations, if any, provide evidence that the model has robust performance in predicting outcomes based on the chosen features.**")
 
     # Key Takeaways based on the correlation analysis
+    st.subheader("Key Takeaways")
     st.write("""
-    ### Key Takeaways:
-    - **Seasonal Variables**: Correlations between seasonal variables like season (Dry/Wet) and planting/harvesting dates with total production are analyzed here. Strong correlations would indicate these factors significantly impact production.
-    - **Exogenous Variables**: Correlations between variables like rice ecosystem, area harvested, and seed types (certified, hybrid) with production. Strong correlations suggest these factors are important exogenous influences on production outcomes.
+    - **Seasonal Variables**: The correlations between seasonal factors such as the season (Dry/Wet) and planting/harvesting dates with total rice production are critical in understanding production patterns.
+    - **Exogenous Variables**: Correlations between variables like rice ecosystem, area harvested, and seed types (certified, hybrid) provide insights into external factors that influence production. 
     """)
 
     # Dynamically generate recommendations based on correlation with Total Production (MT)
@@ -105,9 +105,9 @@ def objective4(df, selected_municipalities, start_date, end_date):
     # For each variable strongly correlated with Total Production, add a recommendation
     for var, corr_value in total_production_corr_sorted.items():
         if corr_value > 0.7:  # Threshold for high correlation
-            recommendations.append(f"Increase focus on **{var}**, as it has a strong positive correlation with total rice production (correlation: {corr_value:.2f}).")
+            recommendations.append(f"Focus on enhancing **{var}** as it has a strong positive correlation with total rice production (correlation: {corr_value:.2f}).")
         elif corr_value < -0.7:
-            recommendations.append(f"Investigate further into **{var}**, as it has a strong negative correlation with total rice production (correlation: {corr_value:.2f}).")
+            recommendations.append(f"Investigate **{var}** further, as it has a strong negative correlation with total rice production (correlation: {corr_value:.2f}).")
 
     # Provide recommendations dynamically
     if recommendations:
