@@ -94,22 +94,22 @@ def objective4(df, selected_municipalities, start_date, end_date):
         # Highlight the strongest correlations
         if any(var in strong_correlation_variables for var in ["Production(MT)", "Total_Production(MT)"]):
             key_takeaways.append(
-                "Total rice production is heavily influenced by factors like the area harvested, seed quality, and timing of planting and harvesting. These correlations are crucial for improving yield."
+                "The correlation between the area harvested, seed quality, and the timing of planting and harvesting shows a strong influence on total rice production. These factors are critical for improving yield."
             )
         
         if any(var in strong_correlation_variables for var in ["Area_Harvested(Ha)", "Total_Area_Harvested(Ha)"]):
             key_takeaways.append(
-                "Expanding the harvested area is a strong driver of increased rice production. Policies supporting land use optimization can have a significant impact on overall yield."
+                "Expanding the harvested area is a significant driver of increased rice production. Policies that encourage efficient land use could have a major impact on overall yield."
             )
         
         if any(var in strong_correlation_variables for var in ["Planting_Date", "Harvesting_Date"]):
             key_takeaways.append(
-                "The timing of planting and harvesting plays a critical role in maximizing rice yields. Early or late planting can severely impact the final production."
+                "The timing of planting and harvesting plays an essential role in maximizing rice yields. Ensuring optimal planting and harvesting dates could significantly improve production."
             )
 
         # Display summarized Key Takeaways
-        for takeaway in key_takeaways:
-            st.write(f"- {takeaway}")
+        st.write("Key Takeaways Summary:")
+        st.write(" ".join(key_takeaways))
 
         # **Summarize Recommendations for Rice Production Growth**
         st.subheader("Recommendations for Rice Production Growth")
@@ -118,22 +118,22 @@ def objective4(df, selected_municipalities, start_date, end_date):
         # Group recommendations based on correlations
         if any(var in strong_correlation_variables for var in ["Production(MT)", "Total_Production(MT)"]):
             recommendations.append(
-                "Focus on improving seed quality, increasing the area harvested, and optimizing planting and harvesting schedules to enhance rice production."
+                "Focus on improving seed quality, optimizing the harvested area, and providing better guidance on planting and harvesting schedules to enhance rice production."
             )
         
         if any(var in strong_correlation_variables for var in ["Area_Harvested(Ha)", "Total_Area_Harvested(Ha)"]):
             recommendations.append(
-                "Encourage farmers to maximize land use by expanding the harvested area. Support programs that increase farmers' capacity to cultivate more hectares."
+                "Encourage farmers to maximize land use and expand the harvested area. Support programs that enable farmers to cultivate more hectares of land."
             )
         
         if any(var in strong_correlation_variables for var in ["Planting_Date", "Harvesting_Date"]):
             recommendations.append(
-                "Provide guidance on ideal planting and harvesting times to ensure maximum yields. This could include region-specific recommendations based on historical data."
+                "Provide region-specific guidance on the best planting and harvesting times to ensure maximum yields. This could be based on historical climate and yield data."
             )
 
         # Display summarized Recommendations
-        for rec in recommendations:
-            st.write(f"- {rec}")
+        st.write("Recommendations Summary:")
+        st.write(" ".join(recommendations))
 
     else:
         st.write("No strong correlations detected in the selected data.")
