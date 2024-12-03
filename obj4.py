@@ -79,8 +79,8 @@ def objective4(df, selected_municipalities, start_date, end_date):
             fmt=".2f",  # Limit to 2 decimal places
             cmap='coolwarm', 
             cbar=True, 
-            square=True, 
-            linewidths=.5,  # Lines between cells
+            square=True,  # Force the plot to be square for consistent cell sizes
+            linewidths=0,  # Remove the cell borders (no gaps)
             annot_kws={"size": 10},  # Adjust the size of the annotation
             ax=ax
         )
@@ -181,8 +181,4 @@ def objective4(df, selected_municipalities, start_date, end_date):
     st.markdown("""
     **Tooltips for Key Variables**:
     - **Production(MT)**: Total rice production in metric tons.
-    - **Area_Harvested(Ha)**: Area of land harvested in hectares.
-    - **Planting_Date**: The date when rice was planted.
-    - **Harvesting_Date**: The date when rice was harvested.
-    - **Correlation Values**: A value above 0.7 or below -0.7 indicates a strong positive or negative relationship, respectively, between variables.
-    """)
+    - **Area_Harvested(Ha)**: Area of land
