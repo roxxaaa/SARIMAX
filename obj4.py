@@ -92,6 +92,9 @@ def objective4(df, selected_municipalities, start_date, end_date):
         heatmap.set_xticklabels(heatmap.get_xticklabels(), rotation=45, horizontalalignment='right', fontsize=12)
         heatmap.set_yticklabels(heatmap.get_yticklabels(), fontsize=12)
 
+        # Set background color and adjust layout for full-fill
+        ax.set_facecolor('white')  # Ensure background color is white or any color you prefer
+
         # Add a title and adjust layout for the best fit
         plt.title("Correlation Heatmap", fontsize=18)
         plt.tight_layout()  # Adjust layout to prevent clipping
