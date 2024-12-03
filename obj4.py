@@ -104,8 +104,8 @@ def objective4(df, selected_municipalities, start_date, end_date):
     # Add an explanation about strong correlations summary
     st.markdown("""
     **Strong Correlations Summary**:
-    "Strong correlations (above 0.7 or below -0.7) indicate significant relationships between factors influencing rice production."). 
-    """
+    - Strong correlations (above 0.7 or below -0.7) indicate significant relationships between factors influencing rice production.")**. 
+    """)
 
     # Display the correlation summary
     if not high_corr.empty:
