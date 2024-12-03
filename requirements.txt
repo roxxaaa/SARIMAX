@@ -1,7 +1,7 @@
-streamlit
-pandas
-reportlab
-seaborn
-matplotlib
-scikit-learn
-statsmodels
+streamlit==1.18.0
+pandas==1.5.3
+reportlab==3.6.1
+seaborn==0.12.0
+matplotlib==3.7.1
+scikit-learn==1.0.2
+statsmodels==0.13.2
