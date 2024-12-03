@@ -181,4 +181,8 @@ def objective4(df, selected_municipalities, start_date, end_date):
     st.markdown("""
     **Tooltips for Key Variables**:
     - **Production(MT)**: Total rice production in metric tons.
-    - **Area_Harvested(Ha)**: Area of land
+    - **Area_Harvested(Ha)**: Area of land harvested in hectares.
+    - **Planting_Date**: The date when rice was planted.
+    - **Harvesting_Date**: The date when rice was harvested.
+    - **Correlation Values**: A value above 0.7 or below -0.7 indicates a strong positive or negative relationship, respectively, between variables.
+    """)
