@@ -43,9 +43,16 @@ def objective4(df, selected_municipalities, start_date, end_date):
     # Compute correlation matrix
     correlation_matrix = df_numeric.corr()
 
-    # Sidebar options to display the correlation matrix and heatmap
+    # Sidebar options to display the correlation matrix for selected municipalities
     st.write(f"Correlation Matrix for {', '.join(selected_municipalities)}")
     st.write(correlation_matrix)
+
+    # Sidebar checkbox to display the Correlation Matrix for San Mateo
+    show_sanmateo_corr = st.sidebar.checkbox("Show Correlation Matrix for San Mateo", value=False)
+    
+    if show_sanmateo_corr and 'SanMateo' in selected_municipalities:
+        st.subheader("Correlation Matrix for San Mateo")
+        st.write(correlation_matrix)  # Display the correlation matrix for San Mateo
 
     # Sidebar checkbox to display the heatmap
     show_heatmap = st.sidebar.checkbox("Show Correlation Heatmap", value=True)
