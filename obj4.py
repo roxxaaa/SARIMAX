@@ -67,55 +67,65 @@ def objective4(df, selected_municipalities, start_date, end_date):
         (high_corr['Variable 1'] != high_corr['Variable 2'])
     ].drop_duplicates()
 
+    # Summarize Key Takeaways and Recommendations based on correlations
     if not high_corr.empty:
         st.write("Strong correlations found:")
         st.dataframe(high_corr)
 
-        # **Dynamic Key Takeaways**
+        # **Summarize Key Takeaways**
         st.subheader("Key Takeaways for the Municipal Agricultural Office")
-        recommendations = []
-        for _, row in high_corr.iterrows():
-            variable_1 = row['Variable 1']
-            variable_2 = row['Variable 2']
-            corr_value = row['Correlation']
+        key_takeaways = []
 
-            # Generate natural language interpretations with tooltips
-            if "Production(MT)" in variable_2 or "Production(MT)" in variable_1:
-                st.write(
-                    f"- The relationship between **{variable_1}** and **{variable_2}** "
-                    f"(correlation: {corr_value:.2f}) shows these factors are critical for total rice production. "
-                    f"These correlations suggest actionable insights for improving production."
-                )
-                recommendations.append(
-                    f"Focus on improving practices related to **{variable_1}** and **{variable_2}** to increase rice yields."
-                )
-            elif "Area_Harvested(Ha)" in variable_1 or "Area_Harvested(Ha)" in variable_2:
-                st.write(
-                    f"- A strong correlation between **{variable_1}** and **{variable_2}** "
-                    f"(correlation: {corr_value:.2f}) suggests that expanding harvested areas can significantly improve production."
-                )
-                recommendations.append(
-                    "Encourage farmers to maximize the harvested area for better yields."
-                )
-            elif "Planting_Date" in variable_1 or "Harvesting_Date" in variable_2:
-                st.write(
-                    f"- The correlation between **{variable_1}** and **{variable_2}** "
-                    f"(correlation: {corr_value:.2f}) highlights the importance of proper timing for planting and harvesting."
-                )
-                recommendations.append(
-                    "Provide better guidance on planting and harvesting schedules to optimize production."
-                )
+        # Group key variables and summarize
+        if any(high_corr['Variable 1'].str.contains("Production(MT)")) or any(high_corr['Variable 2'].str.contains("Production(MT)")):
+            key_takeaways.append(
+                "The production of rice (Total_Production(MT)) is strongly influenced by various factors like the area harvested, seeds used, and timing of planting and harvesting."
+            )
+        
+        if any(high_corr['Variable 1'].str.contains("Area_Harvested(Ha)")) or any(high_corr['Variable 2'].str.contains("Area_Harvested(Ha)")):
+            key_takeaways.append(
+                "Expanding the harvested area is a key factor in boosting overall rice production. This is supported by strong correlations with total production."
+            )
+        
+        if any(high_corr['Variable 1'].str.contains("Planting_Date")) or any(high_corr['Variable 2'].str.contains("Harvesting_Date")):
+            key_takeaways.append(
+                "Proper timing of planting and harvesting is essential for maximizing yield. Timeliness shows a significant correlation with production."
+            )
+
+        # Display summarized Key Takeaways
+        for takeaway in key_takeaways:
+            st.write(f"- {takeaway}")
+
+        # **Summarize Recommendations for Rice Production Growth**
+        st.subheader("Recommendations for Rice Production Growth")
+        recommendations = []
+
+        # Group recommendations based on correlations
+        if any(high_corr['Variable 1'].str.contains("Production(MT)")) or any(high_corr['Variable 2'].str.contains("Production(MT)")):
+            recommendations.append(
+                "Focus on improving the factors that directly impact total production, such as the area harvested, seed quality, and efficient timing of planting and harvesting."
+            )
+        
+        if any(high_corr['Variable 1'].str.contains("Area_Harvested(Ha)")) or any(high_corr['Variable 2'].str.contains("Area_Harvested(Ha)")):
+            recommendations.append(
+                "Encourage farmers to increase the harvested area by optimizing land use and enhancing their capacity to cultivate more hectares."
+            )
+        
+        if any(high_corr['Variable 1'].str.contains("Planting_Date")) or any(high_corr['Variable 2'].str.contains("Harvesting_Date")):
+            recommendations.append(
+                "Provide guidance on the best planting and harvesting times to optimize rice yield, ensuring that these activities align with the ideal environmental conditions."
+            )
+
+        # Display summarized Recommendations
+        for rec in recommendations:
+            st.write(f"- {rec}")
 
     else:
         st.write("No strong correlations detected in the selected data.")
-        recommendations = ["Ensure data completeness and explore additional factors affecting rice production."]
+        st.subheader("Key Takeaways for the Municipal Agricultural Office")
+        st.write("Ensure data completeness and explore additional factors affecting rice production.")
 
-    # **Dynamic Recommendations Based on Correlations**
-    st.subheader("Recommendations for Rice Production Growth")
-    if recommendations:
-        for i, rec in enumerate(recommendations, 1):
-            st.write(f"{i}. {rec}")
-    else:
+        st.subheader("Recommendations for Rice Production Growth")
         st.write("No actionable insights found. Collect more data or refine analysis criteria.")
 
     # Tooltips for better user understanding
