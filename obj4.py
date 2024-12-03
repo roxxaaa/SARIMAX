@@ -78,7 +78,7 @@ def objective4(df, selected_municipalities, start_date, end_date):
             square=True,  # Keep the plot square
             linewidths=0,  # No gaps between cells
             linecolor='black',  # Ensure no visible grid lines
-            annot_kws={"size": 12, "color": 'black'},  # Clear and bold annotations
+            annot_kws={"size": 12, "weight": 'bold', "color": 'black'},  # Clear and bold annotations
             cbar_kws={'shrink': 0.8, 'label': 'Correlation Value'},  # Colorbar adjustments
             ax=ax,
             xticklabels=True,
