@@ -68,27 +68,37 @@ if df is not None:
         # Display all system outputs first
         st.write("Analysis complete! You can download the full report below.")
 
-        # Visualize correlation matrix and display it in the app
-        corr_matrix = df_cleaned.corr()  # Assuming df_cleaned has numerical data
-        plt.figure(figsize=(8, 6))
-        sns.heatmap(corr_matrix, annot=True, cmap="coolwarm", fmt=".2f")
-        plt.title("Correlation Matrix")
-        plt.tight_layout()
+        # Ensure we only compute the correlation matrix on numeric columns
+        numeric_df = df_cleaned.select_dtypes(include=['number'])
 
-        # Display the plot in the Streamlit app
-        st.pyplot(plt)
+        # Check if the filtered dataframe is not empty
+        if not numeric_df.empty:
+            try:
+                corr_matrix = numeric_df.corr()  # Compute the correlation matrix on numeric columns
+                # Proceed with your heatmap code
+                plt.figure(figsize=(8, 6))
+                sns.heatmap(corr_matrix, annot=True, cmap="coolwarm", fmt=".2f")
+                plt.title("Correlation Matrix")
+                plt.tight_layout()
 
-        # Generate the PDF report after all outputs
-        report_file = generate_report(df_cleaned, selected_municipalities, start_year, end_year, corr_matrix)
+                # Display the plot in the Streamlit app
+                st.pyplot(plt)
 
-        # Button to download the PDF report
-        with open(report_file, "rb") as f:
-            st.download_button(
-                label="Download Full Report",
-                data=f,
-                file_name="production_report.pdf",
-                mime="application/pdf"
-            )
+                # Generate the PDF report after all outputs
+                report_file = generate_report(df_cleaned, selected_municipalities, start_year, end_year, corr_matrix)
+
+                # Button to download the PDF report
+                with open(report_file, "rb") as f:
+                    st.download_button(
+                        label="Download Full Report",
+                        data=f,
+                        file_name="production_report.pdf",
+                        mime="application/pdf"
+                    )
+            except ValueError as e:
+                st.error(f"Error while generating correlation matrix: {e}")
+        else:
+            st.warning("No numeric columns available for correlation matrix.")
     else:
         st.error("Error: Invalid data received. Please check the cleaning and selection steps.")
         st.stop()  # Stop execution if the data is invalid
