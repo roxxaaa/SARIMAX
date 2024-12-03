@@ -5,13 +5,14 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 def generate_report(df_cleaned, selected_municipalities, start_year, end_year, corr_matrix):
+    # PDF File Path
     report_filename = "/tmp/production_report.pdf"
     
     # Create the PDF
     c = canvas.Canvas(report_filename, pagesize=letter)
     c.setFont("Helvetica", 12)
     
-    # Title
+    # Title of the report
     c.drawString(100, 750, "Rice Production Report")
     c.drawString(100, 735, f"Selected Municipalities: {', '.join(selected_municipalities)}")
     c.drawString(100, 720, f"Period: {start_year} - {end_year}")
