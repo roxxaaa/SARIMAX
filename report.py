@@ -46,6 +46,9 @@ def generate_report(df, selected_municipalities, start_year, end_year):
     if df_cleaned.empty:
         raise ValueError("Cleaned data is empty after processing. Cannot generate the report.")
     
+    # Compute correlation matrix
+    correlation_matrix = df_cleaned.corr()
+
     # Create the PDF report
     pdf = FPDF()
     pdf.set_auto_page_break(auto=True, margin=15)
@@ -74,8 +77,6 @@ def generate_report(df, selected_municipalities, start_year, end_year):
         pdf.ln()
     
     # Add a placeholder for the correlation matrix (as an example of how to generate a figure)
-    correlation_matrix = df_cleaned.corr()
-    
     # Plot the heatmap of the correlation matrix
     plt.figure(figsize=(10, 8))
     sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', fmt='.2f', cbar=True)
