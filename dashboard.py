@@ -2,27 +2,51 @@ import pandas as pd
 import streamlit as st
 import os
 from io import StringIO
-
-from obj1 import objective1
-from obj3Sarimax import objective3_sarimax
-from obj4 import objective4
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 # Define the function to generate the report
 def generate_report(df_cleaned, selected_municipalities, start_year, end_year):
-    # Example of generating the report content
-    report = f"Rice Production Report for {', '.join(selected_municipalities)}\n"
-    report += f"Analysis Period: {start_year} to {end_year}\n\n"
+    # Create a PDF report
+    pdf_filename = "/tmp/production_report.pdf"
+    c = canvas.Canvas(pdf_filename, pagesize=letter)
+    c.setFont("Helvetica", 12)
+
+    # Write the header of the report
+    c.drawString(100, 750, f"Rice Production Report")
+    c.drawString(100, 735, f"Selected Municipalities: {', '.join(selected_municipalities)}")
+    c.drawString(100, 720, f"Analysis Period: {start_year} to {end_year}")
     
     # Add a summary of the cleaned data
-    report += f"Data Summary:\n"
-    report += f"Number of rows in cleaned data: {df_cleaned.shape[0]}\n"
-    report += f"Selected Municipalities: {', '.join(selected_municipalities)}\n"
+    c.drawString(100, 700, f"Data Summary:")
+    c.drawString(100, 685, f"Number of rows in cleaned data: {df_cleaned.shape[0]}")
+    c.drawString(100, 670, f"Selected Municipalities: {', '.join(selected_municipalities)}")
     
-    # Example of adding more detailed analysis
-    report += "\nAnalysis Results:\n"
-    # Here you can add any results from the analysis, like correlations, statistics, etc.
-    
-    return report
+    # Add correlation matrix as an example of data analysis
+    c.drawString(100, 650, f"Correlation Matrix:")
+
+    # Generate correlation matrix plot
+    corr_matrix = df_cleaned.corr()  # Assuming df_cleaned has numerical data
+    plt.figure(figsize=(8, 6))
+    sns.heatmap(corr_matrix, annot=True, cmap="coolwarm", fmt=".2f")
+    plt.title("Correlation Matrix")
+    plt.tight_layout()
+
+    # Save the correlation matrix plot to a file and add to the PDF
+    plot_filename = "/tmp/corr_matrix.png"
+    plt.savefig(plot_filename)
+    plt.close()
+
+    # Add the plot image to the PDF
+    c.drawImage(plot_filename, 100, 350, width=400, height=300)
+
+    # Finalizing PDF
+    c.save()
+
+    # Return the PDF filename for downloading
+    return pdf_filename
 
 # Streamlit app setup
 st.set_page_config(page_title="SARIMAX for Rice Production", page_icon=":ear_of_rice:", layout="wide")
@@ -64,15 +88,18 @@ if df is not None:
         objective4(df_cleaned, selected_municipalities, start_date, end_date)
         
         # Generate the report after the analysis
-        report = generate_report(df_cleaned, selected_municipalities, start_year, end_year)
+        report_file = generate_report(df_cleaned, selected_municipalities, start_year, end_year)
         
         # Display the report on Streamlit
-        st.write(report)
+        st.write("The report has been generated. You can download it below:")
         
-        # Button to download the report as text file
-        if st.button("Download Full Report"):
-            # Save the report to a StringIO buffer
-            buffer = StringIO(report)
-            st.download_button("Download Report", buffer.getvalue(), file_name="full_report.txt", mime="text/plain")
+        # Button to download the PDF report
+        with open(report_file, "rb") as f:
+            st.download_button(
+                label="Download Full Report",
+                data=f,
+                file_name="production_report.pdf",
+                mime="application/pdf"
+            )
     else:
         st.warning("Please select at least one municipality to proceed with the analysis.")
