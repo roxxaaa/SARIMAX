@@ -73,10 +73,11 @@ def objective4(df, selected_municipalities, start_date, end_date):
             correlation_matrix, 
             annot=True,  # Display correlation values
             fmt=".2f",  # Limit to 2 decimal places
-            cmap='coolwarm',  # Smooth color map, good for continuous values
+            cmap='coolwarm',  # Subtle smooth color map
             cbar=True,  # Display color bar
             square=True,  # Keep the plot square
             linewidths=0,  # Remove the cell borders (no gaps)
+            linecolor='white',  # Set cell borders to white for clarity
             annot_kws={"size": 12, "weight": 'bold', "color": 'black'},  # Clear and bold annotations
             cbar_kws={'shrink': 0.8, 'label': 'Correlation Value'},  # Colorbar adjustments
             ax=ax
