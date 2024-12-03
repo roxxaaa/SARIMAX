@@ -8,13 +8,16 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 # Import your functions correctly from their respective modules
-# Ensure that these files exist and are accessible
 from obj1 import objective1
 from obj3Sarimax import objective3_sarimax
 from obj4 import objective4
 
 # Define the function to generate the PDF report
 def generate_report(df_cleaned, selected_municipalities, start_year, end_year):
+    # Error handling for invalid inputs
+    if df_cleaned is None or len(selected_municipalities) == 0 or not isinstance(start_year, int) or not isinstance(end_year, int):
+        return "Error: Invalid input data for report generation."
+    
     # Create a PDF report
     pdf_filename = "/tmp/production_report.pdf"
     c = canvas.Canvas(pdf_filename, pagesize=letter)
@@ -80,16 +83,23 @@ if df is not None:
     # Assuming objective1 is a function that cleans the data and selects municipalities
     df_cleaned, selected_municipalities, start_year, end_year = objective1(df)
 
+    # Debugging: Display values of the variables
+    st.write("Checking variables:")
+    st.write("df_cleaned:", df_cleaned)
+    st.write("selected_municipalities:", selected_municipalities)
+    st.write("start_year:", start_year)
+    st.write("end_year:", end_year)
+
     # Only proceed if municipalities are selected
     if len(selected_municipalities) > 0:
-        # Pass the cleaned data and municipalities to the SARIMAX model
+        # Objective 3: Apply SARIMAX model
         objective3_sarimax(df_cleaned, selected_municipalities, start_year, end_year)
         
         # Ensure dates for start and end year if objective4 needs date type
         start_date = pd.to_datetime(f"{start_year}-01-01")
         end_date = pd.to_datetime(f"{end_year}-12-31")
         
-        # Pass cleaned data and selected municipalities to objective4
+        # Objective 4: Perform any additional analysis or actions
         objective4(df_cleaned, selected_municipalities, start_date, end_date)
         
         # Generate the report after the analysis
