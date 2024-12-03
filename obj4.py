@@ -44,44 +44,35 @@ def objective4(df, selected_municipalities, start_date, end_date):
     correlation_matrix = df_numeric.corr()
 
     # Sidebar options to display the correlation matrix and heatmap
-    show_corr_matrix = st.sidebar.checkbox("Show Correlation Matrix", value=True)
+    st.write(f"Correlation Matrix for {', '.join(selected_municipalities)}")
+    st.write(correlation_matrix)
+
+    # Sidebar checkbox to display the heatmap
     show_heatmap = st.sidebar.checkbox("Show Correlation Heatmap", value=True)
 
-    # Display correlation matrix if selected
-    if show_corr_matrix:
-        st.write(f"Correlation Matrix for {', '.join(selected_municipalities)}")
-        st.write(correlation_matrix)
-
-    # Display heatmap if selected
     if show_heatmap:
         st.subheader("Correlation Heatmap")
-        # Adding tooltips for better understanding of the heatmap
+        
+        # Add tooltips for better user understanding
         st.markdown("""
-        **Tooltips for Heatmap**:
-        - **Correlation Values**: A value above **0.7** or below **-0.7** indicates a strong positive or negative relationship, respectively, between variables.
-        - **Color Scale**: The heatmap uses a **coolwarm** color scale to represent the correlation values, where darker blue indicates stronger negative correlations, and darker red indicates stronger positive correlations.
-        - **Interpretation**: The heatmap provides a visual representation of how different variables are related to each other. High correlations (either positive or negative) should be investigated further for actionable insights.
+        **Heatmap Explanation:**
+        - The color scale indicates the strength and direction of the correlation.
+        - A correlation value of **1** means perfect positive correlation, and **-1** means perfect negative correlation.
+        - A value around **0** indicates no correlation.
+        - Values **above 0.7** or **below -0.7** are considered strong correlations.
+        - Positive correlations (above 0.7) mean that as one variable increases, the other also increases. 
+        - Negative correlations (below -0.7) mean that as one variable increases, the other decreases.
         """)
 
-        # Plot heatmap with no gaps
-        fig, ax = plt.subplots(figsize=(12, 10))  # Increase figure size for better readability
+        # Increase figure size for better readability
+        fig, ax = plt.subplots(figsize=(14, 12))
         sns.heatmap(
             correlation_matrix, annot=True, fmt=".2f", cmap='coolwarm', 
             cbar=True, square=True, linewidths=0.5, ax=ax, 
-            annot_kws={"size": 10},  # Adjust font size for readability
-            linecolor='white',  # Set line color to white to make borders clean
-            cbar_kws={'shrink': 0.75}  # Make the colorbar smaller for clarity
+            annot_kws={"size": 10}  # Adjust font size for readability
         )
-
-        # Ensure the heatmap fits without gaps
         ax.set_title("Correlation Heatmap", fontsize=16)
-        ax.set_xticklabels(ax.get_xticklabels(), rotation=45, ha="right")
-        ax.set_yticklabels(ax.get_yticklabels(), rotation=0)
-
-        # Adjust layout to remove unnecessary margins
-        plt.tight_layout()
-
-        # Show the heatmap
+        plt.tight_layout()  # Adjust layout to ensure no clipping
         st.pyplot(fig)
 
     # Extract strong correlations
@@ -100,9 +91,6 @@ def objective4(df, selected_municipalities, start_date, end_date):
     - Positive correlations (above 0.7) mean that as one variable increases, the other also increases. 
     - Negative correlations (below -0.7) mean that as one variable increases, the other decreases. 
     - These correlations are important because they help identify the factors that significantly influence rice production.
-
-    **Moderate Strong Correlations**:
-    - Moderate strong correlations fall between **0.5** and **0.7** or **-0.5** and **-0.7**. These correlations still suggest meaningful relationships, but they are not as pronounced as the strong ones.
     """)
 
     # Display the correlation summary
@@ -175,3 +163,6 @@ def objective4(df, selected_municipalities, start_date, end_date):
     - **Production(MT)**: Total rice production in metric tons.
     - **Area_Harvested(Ha)**: Area of land harvested in hectares.
     - **Planting_Date**: The date when rice was planted.
+    - **Harvesting_Date**: The date when rice was harvested.
+    - **Correlation Values**: A value above 0.7 or below -0.7 indicates a strong positive or negative relationship, respectively, between variables.
+    """)
