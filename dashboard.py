@@ -1,91 +1,52 @@
+import streamlit as st
 import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
-from io import BytesIO
+import os
+from io import StringIO
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
-import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
 
-# Generate PDF report function
-def generate_pdf_report(df_cleaned, selected_municipalities, start_year, end_year):
-    # Create a buffer to hold the PDF data
-    buffer = BytesIO()
-    
-    # Create PDF document
-    c = canvas.Canvas(buffer, pagesize=letter)
-    
-    # Add Title
-    c.setFont("Helvetica-Bold", 16)
-    c.drawString(100, 750, f"Rice Production Report for {', '.join(selected_municipalities)}")
-    c.setFont("Helvetica", 12)
-    c.drawString(100, 730, f"Analysis Period: {start_year} to {end_year}")
-    
-    # Add Data Summary
-    c.drawString(100, 710, f"Data Summary:")
-    c.drawString(100, 690, f"Number of rows in cleaned data: {df_cleaned.shape[0]}")
-    c.drawString(100, 670, f"Selected Municipalities: {', '.join(selected_municipalities)}")
+# Your objective imports
+from obj1 import objective1
+from obj3Sarimax import objective3_sarimax
+from obj4 import objective4
 
-    # Filter only numeric columns to calculate correlation matrix
-    df_numeric = df_cleaned.select_dtypes(include=[np.number])
-
-    # Check if numeric data exists
-    if not df_numeric.empty:
-        # Generate the correlation matrix
-        corr_matrix = df_numeric.corr()
-
-        # Plotting the heatmap
-        plt.figure(figsize=(8, 6))
-        sns.heatmap(corr_matrix, annot=True, fmt=".2f", cmap="coolwarm", cbar=True, square=True)
-        plt.title("Correlation Matrix")
-        
-        # Save the heatmap as an image in the buffer
-        heatmap_buffer = BytesIO()
-        plt.savefig(heatmap_buffer, format="png")
-        plt.close()
-
-        # Rewind buffer and insert the image into the PDF
-        heatmap_buffer.seek(0)
-        c.drawImage(heatmap_buffer, 100, 400, width=400, height=300)
-    else:
-        c.drawString(100, 650, "No numeric data available for correlation.")
-
-    # Add conclusion or additional results
-    c.drawString(100, 350, "Conclusion: This is an example report summary.")
-    
-    # Finalize the PDF
-    c.showPage()
-    c.save()
-
-    # Return the PDF buffer
-    buffer.seek(0)
-    return buffer
-
-# Streamlit app setup
+# Set Streamlit page configuration (must be the first Streamlit function)
 st.set_page_config(page_title="SARIMAX for Rice Production", page_icon=":ear_of_rice:", layout="wide")
-st.title("Application of SARIMAX for Agricultural Rice Production")
 
-# File uploader or dataset loading
+# Streamlit App Title
+st.title("Application of SARIMAX for Agricultural Rice Production")
+st.write("Seasonal Auto-Regressive Integrated Moving Average with Exogenous Regressor")
+
+# Sidebar
+st.sidebar.image("images/DALogo.jpg", use_column_width=True)
+
+# File uploader or default dataset handling
 uploaded_file = st.sidebar.file_uploader("Upload your CSV file", type=["csv"])
 
+# Initialize the 'df' variable
 df = None
 
+# Check if an uploaded file exists or use the default dataset
 if uploaded_file:
-    df = pd.read_csv(uploaded_file)
+    df = pd.read_csv(uploaded_file)  # Read the uploaded file into a dataframe
     st.write("Dataset uploaded successfully!")
 else:
     default_path = "data/San Mateo Dataset.csv"
     if os.path.exists(default_path):
-        df = pd.read_csv(default_path)
+        df = pd.read_csv(default_path)  # Load from the default path if the file exists or dataset
         st.write("Using default dataset!")
     else:
         st.error("Please upload a dataset or make sure the default file exists.")
-        st.stop()
+        st.stop()  # Stop execution if no dataset
 
 # Check if dataframe is loaded
 if df is not None:
     # Objective 1: Data Cleaning & Municipality Selection
     df_cleaned, selected_municipalities, start_year, end_year = objective1(df)
 
+    # Only proceed if municipalities are selected
     if len(selected_municipalities) > 0:
         # Pass the cleaned data and municipalities to the SARIMAX model
         objective3_sarimax(df_cleaned, selected_municipalities, start_year, end_year)
@@ -96,16 +57,80 @@ if df is not None:
         
         # Pass cleaned data and selected municipalities to objective4
         objective4(df_cleaned, selected_municipalities, start_date, end_date)
-        
-        # Generate the PDF report after the analysis
-        report_buffer = generate_pdf_report(df_cleaned, selected_municipalities, start_year, end_year)
-        
-        # Button to download the PDF report
-        st.download_button(
-            label="Download Full Report",
-            data=report_buffer,
-            file_name="full_report.pdf",
-            mime="application/pdf"
-        )
+
+        # Generate the report after the analysis
+        report = generate_report(df_cleaned, selected_municipalities, start_year, end_year)
+
+        # Display the report on Streamlit
+        st.write(report)
+
+        # Button to download the report as a text file
+        if st.button("Download Full Report as Text File"):
+            # Save the report to a StringIO buffer
+            buffer = StringIO(report)
+            st.download_button("Download Report", buffer.getvalue(), file_name="full_report.txt", mime="text/plain")
+
+        # Generate and download PDF report
+        if st.button("Download Full Report as PDF"):
+            report_buffer = generate_pdf_report(df_cleaned, selected_municipalities, start_year, end_year)
+            st.download_button("Download PDF Report", report_buffer, file_name="full_report.pdf", mime="application/pdf")
     else:
         st.warning("Please select at least one municipality to proceed with the analysis.")
+
+
+# Function to generate a report text
+def generate_report(df_cleaned, selected_municipalities, start_year, end_year):
+    report = f"Rice Production Report for {', '.join(selected_municipalities)}\n"
+    report += f"Analysis Period: {start_year} to {end_year}\n\n"
+
+    # Add a summary of the cleaned data
+    report += f"Data Summary:\n"
+    report += f"Number of rows in cleaned data: {df_cleaned.shape[0]}\n"
+    report += f"Selected Municipalities: {', '.join(selected_municipalities)}\n"
+
+    # Add analysis results
+    report += "\nAnalysis Results:\n"
+    # Example of adding correlation matrix (could add more detailed analysis)
+    corr_matrix = df_cleaned.corr()
+    report += f"\nCorrelation Matrix:\n{corr_matrix}\n"
+    
+    return report
+
+
+# Function to generate a PDF report
+def generate_pdf_report(df_cleaned, selected_municipalities, start_year, end_year):
+    report_buffer = StringIO()
+
+    # Create the PDF canvas
+    c = canvas.Canvas(report_buffer, pagesize=letter)
+    width, height = letter  # Define the page size
+
+    # Add Title to PDF
+    c.setFont("Helvetica-Bold", 16)
+    c.drawString(100, height - 100, f"Rice Production Report for {', '.join(selected_municipalities)}")
+    c.setFont("Helvetica", 12)
+    c.drawString(100, height - 120, f"Analysis Period: {start_year} to {end_year}")
+
+    # Data Summary Section
+    c.drawString(100, height - 140, "Data Summary:")
+    c.drawString(100, height - 160, f"Number of rows in cleaned data: {df_cleaned.shape[0]}")
+    c.drawString(100, height - 180, f"Selected Municipalities: {', '.join(selected_municipalities)}")
+
+    # Adding a plot to the PDF (correlation matrix as an example)
+    plt.figure(figsize=(8, 6))
+    sns.heatmap(df_cleaned.corr(), annot=True, cmap="coolwarm", fmt=".2f", cbar=True)
+    plt.title("Correlation Matrix")
+    plt.tight_layout()
+
+    # Save the plot to a buffer and add it to the PDF
+    img_path = "/tmp/correlation_matrix.png"
+    plt.savefig(img_path)
+    c.drawImage(img_path, 100, height - 500, width=500, height=300)
+
+    # Finalize the PDF
+    c.showPage()
+    c.save()
+
+    # Return the buffer with the PDF content
+    report_buffer.seek(0)
+    return report_buffer.getvalue()
