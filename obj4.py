@@ -57,7 +57,7 @@ def objective4(df, selected_municipalities, start_date, end_date):
         st.subheader("Correlation Heatmap")
         
         # Add tooltips for better user understanding
-        st.markdown("""
+        st.markdown("""  
         **Heatmap Explanation:**
         - The color scale indicates the strength and direction of the correlation.
         - A correlation value of **1** means perfect positive correlation, and **-1** means perfect negative correlation.
@@ -68,26 +68,26 @@ def objective4(df, selected_municipalities, start_date, end_date):
         """)
 
         # Create the heatmap with continuous gradient and no gaps
-        fig, ax = plt.subplots(figsize=(12, 10))  # Adjust figure size
+        fig, ax = plt.subplots(figsize=(12, 10))  # Adjust figure size for better display
         heatmap = sns.heatmap(
             correlation_matrix, 
             annot=True, 
-            fmt=".2f",  # Limit to 2 decimal places
-            cmap='coolwarm',  # Continuous color scale from blue (low) to red (high)
+            fmt=".2f",  # Limit to 2 decimal places for clarity
+            cmap='coolwarm',  # Smooth continuous color scale from blue (low) to red (high)
             cbar=True, 
-            square=True,  # Force the plot to be square for consistent cell sizes
-            linewidths=0,  # Remove the cell borders (no gaps)
-            annot_kws={"size": 10},  # Adjust the size of the annotation
+            square=True,  # Ensure square-shaped heatmap
+            linewidths=0,  # Remove cell borders for a cleaner look
+            annot_kws={"size": 14},  # Adjust annotation size
             ax=ax
         )
 
         # Rotate x and y axis labels for better readability
-        heatmap.set_xticklabels(heatmap.get_xticklabels(), rotation=45, horizontalalignment='right', fontsize=10)
-        heatmap.set_yticklabels(heatmap.get_yticklabels(), fontsize=10)
+        heatmap.set_xticklabels(heatmap.get_xticklabels(), rotation=45, horizontalalignment='right', fontsize=14)
+        heatmap.set_yticklabels(heatmap.get_yticklabels(), fontsize=14)
 
         # Set title and adjust layout
-        plt.title("Correlation Heatmap", fontsize=16)
-        plt.tight_layout()  # Adjust the layout to avoid any clipping
+        plt.title("Correlation Heatmap", fontsize=18)
+        plt.tight_layout()  # Adjust layout to prevent clipping
 
         # Display heatmap
         st.pyplot(fig)
@@ -104,7 +104,7 @@ def objective4(df, selected_municipalities, start_date, end_date):
     # Add an explanation about strong correlations summary
     st.markdown("""
     **Strong Correlations Summary**:
-    - Strong correlations (above 0.7 or below -0.7) indicate significant relationships between factors influencing rice production.")**. 
+    - Strong correlations (above 0.7 or below -0.7) indicate significant relationships between factors influencing rice production.
     """)
 
     # Display the correlation summary
