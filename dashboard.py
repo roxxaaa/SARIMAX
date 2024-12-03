@@ -85,7 +85,7 @@ if df is not None:
                 st.pyplot(plt)
 
                 # Generate the PDF report after all outputs
-                report_file = generate_report(df_cleaned, selected_municipalities, start_year, end_year, corr_matrix)
+                report_file = generate_report(df_cleaned, selected_municipalities, start_year, end_year, corr_matrix)  # Pass corr_matrix here
 
                 # Button to download the PDF report
                 with open(report_file, "rb") as f:
