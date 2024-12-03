@@ -7,6 +7,10 @@ from reportlab.pdfgen import canvas
 import seaborn as sns
 import matplotlib.pyplot as plt
 
+from obj1 import objective1
+from obj3Sarimax import objective3_sarimax
+from obj4 import objective4
+
 # Assuming objective1, objective3_sarimax, and objective4 are correctly imported
 # If they are in different files, make sure to import them like this:
 # from obj1 import objective1
