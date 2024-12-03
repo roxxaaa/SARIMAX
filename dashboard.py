@@ -90,8 +90,8 @@ if df is not None:
     st.write("start_year:", start_year)
     st.write("end_year:", end_year)
 
-    # Only proceed if municipalities are selected
-    if len(selected_municipalities) > 0:
+    # Only proceed if municipalities are selected and other variables are valid
+    if len(selected_municipalities) > 0 and df_cleaned is not None and isinstance(start_year, int) and isinstance(end_year, int):
         # Objective 3: Apply SARIMAX model
         objective3_sarimax(df_cleaned, selected_municipalities, start_year, end_year)
         
@@ -106,15 +106,18 @@ if df is not None:
         report_file = generate_report(df_cleaned, selected_municipalities, start_year, end_year)
         
         # Display a message that the report is ready
-        st.write("The report has been generated. You can download it below:")
-        
-        # Button to download the PDF report
-        with open(report_file, "rb") as f:
-            st.download_button(
-                label="Download Full Report",
-                data=f,
-                file_name="production_report.pdf",
-                mime="application/pdf"
-            )
+        if report_file != "Error: Invalid input data for report generation.":
+            st.write("The report has been generated. You can download it below:")
+            
+            # Button to download the PDF report
+            with open(report_file, "rb") as f:
+                st.download_button(
+                    label="Download Full Report",
+                    data=f,
+                    file_name="production_report.pdf",
+                    mime="application/pdf"
+                )
+        else:
+            st.error("Error generating the report. Please check the data inputs.")
     else:
-        st.warning("Please select at least one municipality to proceed with the analysis.")
+        st.warning("Please ensure data is cleaned, municipalities are selected, and valid years are provided.")
