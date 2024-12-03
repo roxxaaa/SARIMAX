@@ -7,34 +7,37 @@ from reportlab.pdfgen import canvas
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-# Define the function to generate the report
+# Assuming objective1, objective3_sarimax, and objective4 are correctly imported
+# If they are in different files, make sure to import them like this:
+# from obj1 import objective1
+# from obj3Sarimax import objective3_sarimax
+# from obj4 import objective4
+
+# Define the function to generate the PDF report
 def generate_report(df_cleaned, selected_municipalities, start_year, end_year):
     # Create a PDF report
     pdf_filename = "/tmp/production_report.pdf"
     c = canvas.Canvas(pdf_filename, pagesize=letter)
     c.setFont("Helvetica", 12)
 
-    # Write the header of the report
+    # Add header to the report
     c.drawString(100, 750, f"Rice Production Report")
     c.drawString(100, 735, f"Selected Municipalities: {', '.join(selected_municipalities)}")
     c.drawString(100, 720, f"Analysis Period: {start_year} to {end_year}")
     
-    # Add a summary of the cleaned data
+    # Add summary of the cleaned data
     c.drawString(100, 700, f"Data Summary:")
     c.drawString(100, 685, f"Number of rows in cleaned data: {df_cleaned.shape[0]}")
     c.drawString(100, 670, f"Selected Municipalities: {', '.join(selected_municipalities)}")
     
-    # Add correlation matrix as an example of data analysis
-    c.drawString(100, 650, f"Correlation Matrix:")
-
-    # Generate correlation matrix plot
+    # Generate and add correlation matrix plot to the report
     corr_matrix = df_cleaned.corr()  # Assuming df_cleaned has numerical data
     plt.figure(figsize=(8, 6))
     sns.heatmap(corr_matrix, annot=True, cmap="coolwarm", fmt=".2f")
     plt.title("Correlation Matrix")
     plt.tight_layout()
 
-    # Save the correlation matrix plot to a file and add to the PDF
+    # Save the correlation matrix plot to a file and add it to the PDF
     plot_filename = "/tmp/corr_matrix.png"
     plt.savefig(plot_filename)
     plt.close()
@@ -42,11 +45,12 @@ def generate_report(df_cleaned, selected_municipalities, start_year, end_year):
     # Add the plot image to the PDF
     c.drawImage(plot_filename, 100, 350, width=400, height=300)
 
-    # Finalizing PDF
+    # Finalize the PDF
     c.save()
 
     # Return the PDF filename for downloading
     return pdf_filename
+
 
 # Streamlit app setup
 st.set_page_config(page_title="SARIMAX for Rice Production", page_icon=":ear_of_rice:", layout="wide")
@@ -70,9 +74,10 @@ else:
         st.error("Please upload a dataset or make sure the default file exists.")
         st.stop()  # Stop execution if no dataset
 
-# Check if dataframe is loaded
+# Ensure the dataframe is loaded
 if df is not None:
     # Objective 1: Data Cleaning & Municipality Selection
+    # Assuming objective1 is a function that cleans the data and selects municipalities
     df_cleaned, selected_municipalities, start_year, end_year = objective1(df)
 
     # Only proceed if municipalities are selected
@@ -90,7 +95,7 @@ if df is not None:
         # Generate the report after the analysis
         report_file = generate_report(df_cleaned, selected_municipalities, start_year, end_year)
         
-        # Display the report on Streamlit
+        # Display a message that the report is ready
         st.write("The report has been generated. You can download it below:")
         
         # Button to download the PDF report
