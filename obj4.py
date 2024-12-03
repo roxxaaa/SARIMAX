@@ -67,18 +67,18 @@ def objective4(df, selected_municipalities, start_date, end_date):
         - Negative correlations (below -0.7) mean that as one variable increases, the other decreases.
         """)
 
-        # Create the heatmap with adjusted appearance
-        fig, ax = plt.subplots(figsize=(14, 12))  # Adjust figure size
+        # Create the heatmap with a polished look
+        fig, ax = plt.subplots(figsize=(14, 12))  # Adjust figure size for clarity
         heatmap = sns.heatmap(
             correlation_matrix, 
-            annot=True, 
+            annot=True,  # Display correlation values
             fmt=".2f",  # Limit to 2 decimal places
-            cmap='YlGnBu',  # Use a soft and clean color map
-            cbar=True, 
-            square=True,  # Force square aspect for consistency
-            linewidths=0.5,  # Thin border for subtle grid
-            annot_kws={"size": 12},  # Adjust annotation size
-            cbar_kws={'shrink': 0.8},  # Shrink color bar for better proportion
+            cmap='coolwarm',  # Smooth color map, good for continuous values
+            cbar=True,  # Display color bar
+            square=True,  # Keep the plot square
+            linewidths=0.5,  # Thin border between cells
+            annot_kws={"size": 12, "weight": 'bold', "color": 'black'},  # Clear and bold annotations
+            cbar_kws={'shrink': 0.8, 'label': 'Correlation Value'},  # Colorbar adjustments
             ax=ax
         )
 
@@ -86,11 +86,11 @@ def objective4(df, selected_municipalities, start_date, end_date):
         heatmap.set_xticklabels(heatmap.get_xticklabels(), rotation=45, horizontalalignment='right', fontsize=12)
         heatmap.set_yticklabels(heatmap.get_yticklabels(), fontsize=12)
 
-        # Set title and adjust layout
+        # Add a title and adjust layout for the best fit
         plt.title("Correlation Heatmap", fontsize=18)
         plt.tight_layout()  # Adjust layout to prevent clipping
 
-        # Display heatmap
+        # Display the heatmap
         st.pyplot(fig)
 
     # Extract strong correlations
