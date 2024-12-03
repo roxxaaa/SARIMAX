@@ -76,12 +76,17 @@ def objective4(df, selected_municipalities, start_date, end_date):
             cmap='coolwarm',  # Subtle smooth color map
             cbar=True,  # Display color bar
             square=True,  # Keep the plot square
-            linewidths=0,  # Remove the cell borders (no gaps)
-            linecolor='white',  # Set cell borders to white for clarity
-            annot_kws={"size": 12, "color": 'black'},  # Clear and bold annotations
+            linewidths=0,  # No gaps between cells
+            linecolor='black',  # Ensure no visible grid lines
+            annot_kws={"size": 12, "weight": 'bold', "color": 'black'},  # Clear and bold annotations
             cbar_kws={'shrink': 0.8, 'label': 'Correlation Value'},  # Colorbar adjustments
-            ax=ax
+            ax=ax,
+            xticklabels=True,
+            yticklabels=True
         )
+
+        # Remove gridlines and adjust the layout to make the cells look filled
+        heatmap.grid(False)
 
         # Rotate x and y axis labels for better readability
         heatmap.set_xticklabels(heatmap.get_xticklabels(), rotation=45, horizontalalignment='right', fontsize=12)
