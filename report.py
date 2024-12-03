@@ -1,9 +1,9 @@
+# report.py
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-from sklearn.preprocessing import LabelEncoder
-import os
 from fpdf import FPDF
+import os
 
 def clean_data(df, selected_municipalities, start_date, end_date):
     # Filter data based on selected municipalities and date range
@@ -46,7 +46,7 @@ def generate_report(df, selected_municipalities, start_year, end_year):
     if df_cleaned.empty:
         raise ValueError("Cleaned data is empty after processing. Cannot generate the report.")
     
-    # Compute correlation matrix
+    # Compute correlation matrix (this is the key change)
     correlation_matrix = df_cleaned.corr()
 
     # Create the PDF report
