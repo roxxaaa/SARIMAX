@@ -7,25 +7,33 @@ from obj1 import objective1
 from obj3Sarimax import objective3_sarimax
 from obj4 import objective4
 
-# Streamlit app configuration
+# Define the function to generate the report
+def generate_report(df_cleaned, selected_municipalities, start_year, end_year):
+    # Example of generating the report content
+    report = f"Rice Production Report for {', '.join(selected_municipalities)}\n"
+    report += f"Analysis Period: {start_year} to {end_year}\n\n"
+    
+    # Add a summary of the cleaned data
+    report += f"Data Summary:\n"
+    report += f"Number of rows in cleaned data: {df_cleaned.shape[0]}\n"
+    report += f"Selected Municipalities: {', '.join(selected_municipalities)}\n"
+    
+    # Example of adding more detailed analysis
+    report += "\nAnalysis Results:\n"
+    # Here you can add any results from the analysis, like correlations, statistics, etc.
+    
+    return report
+
+# Streamlit app setup
 st.set_page_config(page_title="SARIMAX for Rice Production", page_icon=":ear_of_rice:", layout="wide")
 st.title("Application of SARIMAX for Agricultural Rice Production")
-st.write("Seasonal Auto-Regressive Integrated Moving Average with Exogenous Regressor")
 
-# CSS for styling
-with open("app.css") as f:
-    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
-
-# Sidebar for file uploader or default dataset
-st.sidebar.image("images/DALogo.jpg", use_column_width=True)
-
-# File uploader or default dataset handling
+# Check if dataframe is loaded
 uploaded_file = st.sidebar.file_uploader("Upload your CSV file", type=["csv"])
 
-# Initialize the 'df' variable
 df = None
 
-# Check if an uploaded file exists or use the default path
+# Check if an uploaded file exists or use the default dataset
 if uploaded_file:
     df = pd.read_csv(uploaded_file)  # Read the uploaded file into a dataframe
     st.write("Dataset uploaded successfully!")
@@ -43,9 +51,9 @@ if df is not None:
     # Objective 1: Data Cleaning & Municipality Selection
     df_cleaned, selected_municipalities, start_year, end_year = objective1(df)
 
-    # Check if required variables are defined
-    if df_cleaned is not None and len(selected_municipalities) > 0 and start_year and end_year:
-        # Pass the required parameters to objective3_sarimax
+    # Only proceed if municipalities are selected
+    if len(selected_municipalities) > 0:
+        # Pass the cleaned data and municipalities to the SARIMAX model
         objective3_sarimax(df_cleaned, selected_municipalities, start_year, end_year)
         
         # Ensure dates for start and end year if objective4 needs date type
@@ -54,58 +62,17 @@ if df is not None:
         
         # Pass cleaned data and selected municipalities to objective4
         objective4(df_cleaned, selected_municipalities, start_date, end_date)
-
-        # Add a button to download the full report
-        st.subheader("Download Full Report")
         
-        # Generate the report as a string or CSV
-        try:
-            report = generate_report(df_cleaned, selected_municipalities, start_year, end_year)
-            # Create a download button
-            st.download_button(
-                label="Download Report",
-                data=report,
-                file_name="SARIMAX_Report.txt",  # Change to .csv or other formats if preferred
-                mime="text/plain"  # Change mime type for CSV, JSON, etc.
-            )
-        except Exception as e:
-            st.error(f"Error generating report: {str(e)}")
+        # Generate the report after the analysis
+        report = generate_report(df_cleaned, selected_municipalities, start_year, end_year)
+        
+        # Display the report on Streamlit
+        st.write(report)
+        
+        # Button to download the report as text file
+        if st.button("Download Full Report"):
+            # Save the report to a StringIO buffer
+            buffer = StringIO(report)
+            st.download_button("Download Report", buffer.getvalue(), file_name="full_report.txt", mime="text/plain")
     else:
         st.warning("Please select at least one municipality to proceed with the analysis.")
-
-# Function to generate the report content
-def generate_report(df_cleaned, selected_municipalities, start_year, end_year):
-    if not df_cleaned or not selected_municipalities:
-        raise ValueError("Missing necessary data to generate the report")
-    
-    report = StringIO()  # Using StringIO to generate text-based content
-
-    # Write the general info
-    report.write(f"Report: SARIMAX for Rice Production Analysis\n")
-    report.write(f"Selected Municipalities: {', '.join(selected_municipalities)}\n")
-    report.write(f"Start Year: {start_year}, End Year: {end_year}\n\n")
-    
-    # Add a summary of the cleaned dataset
-    report.write("Cleaned Dataset Summary:\n")
-    report.write(f"Rows: {df_cleaned.shape[0]}, Columns: {df_cleaned.shape[1]}\n\n")
-    
-    # Add data description (e.g., statistical summary of the cleaned data)
-    report.write("Data Description (Statistical Summary):\n")
-    report.write(df_cleaned.describe().to_string())
-    report.write("\n\n")
-    
-    # Include the results from objective3 (SARIMAX model output)
-    report.write("SARIMAX Model Output:\n")
-    # Add your SARIMAX model results here (can be output from objective3)
-    # report.write(str(sarimax_results))  # Example (add actual results)
-    
-    # Include results from objective4 (Correlation analysis, heatmaps)
-    report.write("Correlation Analysis:\n")
-    # Add correlation results here (can be output from objective4)
-    # report.write(str(correlation_matrix))  # Example (add actual results)
-    
-    # Add any additional information or summaries here
-    
-    # Finalize the report
-    report.seek(0)  # Rewind the StringIO buffer
-    return report.getvalue()  # Return the content of the report as a string
