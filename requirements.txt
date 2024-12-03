@@ -4,3 +4,5 @@ plotly
 statsmodels
 seaborn
 scikit-learn
+matplotlib
+reportlab
