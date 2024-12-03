@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import os
-from obj1 import objective1  # Assuming you have this function for data cleaning
 from obj3Sarimax import objective3_sarimax  # Assuming SARIMAX logic is here
 from report import generate_report  # Import the updated generate_report
 
@@ -38,28 +37,26 @@ else:
 
 # Ensure the dataframe is loaded
 if df is not None:
-    # Step 1: Clean the data and get necessary parameters
-    df_cleaned, selected_municipalities, start_year, end_year = objective1(df)
+    # Step 1: Apply SARIMAX model (assuming df is already cleaned)
+    try:
+        selected_municipalities = ['San Mateo']  # Assuming this is a fixed list for simplicity
+        start_year = 2010
+        end_year = 2020
 
-    # Check if cleaning was successful (e.g., non-empty data, valid year selection)
-    if df_cleaned is not None and len(selected_municipalities) > 0 and isinstance(start_year, int) and isinstance(end_year, int):
-        # Step 2: Apply SARIMAX model (you can call this after the cleaning and before generating the report)
-        objective3_sarimax(df_cleaned, selected_municipalities, start_year, end_year)
+        # Apply SARIMAX model
+        objective3_sarimax(df, selected_municipalities, start_year, end_year)
 
-        # Step 3: Generate the PDF report after all outputs
-        try:
-            report_file = generate_report(df_cleaned, selected_municipalities, start_year, end_year)
+        # Step 2: Generate the PDF report after all outputs
+        report_file = generate_report(df, selected_municipalities, start_year, end_year)
 
-            # Button to download the PDF report
-            with open(report_file, "rb") as f:
-                st.download_button(
-                    label="Download Full Report",
-                    data=f,
-                    file_name="production_report.pdf",
-                    mime="application/pdf"
-                )
-        except Exception as e:
-            st.error(f"Error generating report: {e}")
-    else:
-        st.error("Error: Invalid data received. Please check the cleaning and selection steps.")
-        st.stop()  # Stop execution if the data is invalid
+        # Button to download the PDF report
+        with open(report_file, "rb") as f:
+            st.download_button(
+                label="Download Full Report",
+                data=f,
+                file_name="production_report.pdf",
+                mime="application/pdf"
+            )
+
+    except Exception as e:
+        st.error(f"Error generating report: {e}")
