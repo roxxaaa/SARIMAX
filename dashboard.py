@@ -12,10 +12,65 @@ from obj1 import objective1
 from obj3Sarimax import objective3_sarimax
 from obj4 import objective4
 
-# Set Streamlit page configuration (must be the first Streamlit function)
-st.set_page_config(page_title="SARIMAX for Rice Production", page_icon=":ear_of_rice:", layout="wide")
+# Define the function to generate the text report
+def generate_report(df_cleaned, selected_municipalities, start_year, end_year):
+    report = f"Rice Production Report for {', '.join(selected_municipalities)}\n"
+    report += f"Analysis Period: {start_year} to {end_year}\n\n"
 
-# Streamlit App Title
+    # Add a summary of the cleaned data
+    report += f"Data Summary:\n"
+    report += f"Number of rows in cleaned data: {df_cleaned.shape[0]}\n"
+    report += f"Selected Municipalities: {', '.join(selected_municipalities)}\n"
+
+    # Add analysis results
+    report += "\nAnalysis Results:\n"
+    # Example of adding correlation matrix (could add more detailed analysis)
+    corr_matrix = df_cleaned.corr()
+    report += f"\nCorrelation Matrix:\n{corr_matrix}\n"
+    
+    return report
+
+# Define the function to generate the PDF report
+def generate_pdf_report(df_cleaned, selected_municipalities, start_year, end_year):
+    report_buffer = StringIO()
+
+    # Create the PDF canvas
+    c = canvas.Canvas(report_buffer, pagesize=letter)
+    width, height = letter  # Define the page size
+
+    # Add Title to PDF
+    c.setFont("Helvetica-Bold", 16)
+    c.drawString(100, height - 100, f"Rice Production Report for {', '.join(selected_municipalities)}")
+    c.setFont("Helvetica", 12)
+    c.drawString(100, height - 120, f"Analysis Period: {start_year} to {end_year}")
+
+    # Data Summary Section
+    c.drawString(100, height - 140, "Data Summary:")
+    c.drawString(100, height - 160, f"Number of rows in cleaned data: {df_cleaned.shape[0]}")
+    c.drawString(100, height - 180, f"Selected Municipalities: {', '.join(selected_municipalities)}")
+
+    # Adding a plot to the PDF (correlation matrix as an example)
+    plt.figure(figsize=(8, 6))
+    sns.heatmap(df_cleaned.corr(), annot=True, cmap="coolwarm", fmt=".2f", cbar=True)
+    plt.title("Correlation Matrix")
+    plt.tight_layout()
+
+    # Save the plot to a buffer and add it to the PDF
+    img_path = "/tmp/correlation_matrix.png"
+    plt.savefig(img_path)
+    c.drawImage(img_path, 100, height - 500, width=500, height=300)
+
+    # Finalize the PDF
+    c.showPage()
+    c.save()
+
+    # Return the buffer with the PDF content
+    report_buffer.seek(0)
+    return report_buffer.getvalue()
+
+
+# Streamlit app setup
+st.set_page_config(page_title="SARIMAX for Rice Production", page_icon=":ear_of_rice:", layout="wide")
 st.title("Application of SARIMAX for Agricultural Rice Production")
 st.write("Seasonal Auto-Regressive Integrated Moving Average with Exogenous Regressor")
 
@@ -76,61 +131,3 @@ if df is not None:
             st.download_button("Download PDF Report", report_buffer, file_name="full_report.pdf", mime="application/pdf")
     else:
         st.warning("Please select at least one municipality to proceed with the analysis.")
-
-
-# Function to generate a report text
-def generate_report(df_cleaned, selected_municipalities, start_year, end_year):
-    report = f"Rice Production Report for {', '.join(selected_municipalities)}\n"
-    report += f"Analysis Period: {start_year} to {end_year}\n\n"
-
-    # Add a summary of the cleaned data
-    report += f"Data Summary:\n"
-    report += f"Number of rows in cleaned data: {df_cleaned.shape[0]}\n"
-    report += f"Selected Municipalities: {', '.join(selected_municipalities)}\n"
-
-    # Add analysis results
-    report += "\nAnalysis Results:\n"
-    # Example of adding correlation matrix (could add more detailed analysis)
-    corr_matrix = df_cleaned.corr()
-    report += f"\nCorrelation Matrix:\n{corr_matrix}\n"
-    
-    return report
-
-
-# Function to generate a PDF report
-def generate_pdf_report(df_cleaned, selected_municipalities, start_year, end_year):
-    report_buffer = StringIO()
-
-    # Create the PDF canvas
-    c = canvas.Canvas(report_buffer, pagesize=letter)
-    width, height = letter  # Define the page size
-
-    # Add Title to PDF
-    c.setFont("Helvetica-Bold", 16)
-    c.drawString(100, height - 100, f"Rice Production Report for {', '.join(selected_municipalities)}")
-    c.setFont("Helvetica", 12)
-    c.drawString(100, height - 120, f"Analysis Period: {start_year} to {end_year}")
-
-    # Data Summary Section
-    c.drawString(100, height - 140, "Data Summary:")
-    c.drawString(100, height - 160, f"Number of rows in cleaned data: {df_cleaned.shape[0]}")
-    c.drawString(100, height - 180, f"Selected Municipalities: {', '.join(selected_municipalities)}")
-
-    # Adding a plot to the PDF (correlation matrix as an example)
-    plt.figure(figsize=(8, 6))
-    sns.heatmap(df_cleaned.corr(), annot=True, cmap="coolwarm", fmt=".2f", cbar=True)
-    plt.title("Correlation Matrix")
-    plt.tight_layout()
-
-    # Save the plot to a buffer and add it to the PDF
-    img_path = "/tmp/correlation_matrix.png"
-    plt.savefig(img_path)
-    c.drawImage(img_path, 100, height - 500, width=500, height=300)
-
-    # Finalize the PDF
-    c.showPage()
-    c.save()
-
-    # Return the buffer with the PDF content
-    report_buffer.seek(0)
-    return report_buffer.getvalue()
