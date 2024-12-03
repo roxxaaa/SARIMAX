@@ -1,76 +1,62 @@
 import pandas as pd
-import streamlit as st
-import os
-from io import StringIO
+import seaborn as sns
+import matplotlib.pyplot as plt
 from io import BytesIO
 from reportlab.lib.pagesizes import letter
-from reportlab.lib import colors
 from reportlab.pdfgen import canvas
-import matplotlib.pyplot as plt
-import seaborn as sns
+import numpy as np
 
-from obj1 import objective1
-from obj3Sarimax import objective3_sarimax
-from obj4 import objective4
-
-# Define the function to generate the report in PDF
+# Generate PDF report function
 def generate_pdf_report(df_cleaned, selected_municipalities, start_year, end_year):
     # Create a buffer to hold the PDF data
     buffer = BytesIO()
     
-    # Create a canvas object to start writing the PDF
+    # Create PDF document
     c = canvas.Canvas(buffer, pagesize=letter)
-    width, height = letter
     
-    # Title
-    c.setFont("Helvetica-Bold", 18)
-    c.drawString(72, height - 72, f"Rice Production Report for {', '.join(selected_municipalities)}")
+    # Add Title
+    c.setFont("Helvetica-Bold", 16)
+    c.drawString(100, 750, f"Rice Production Report for {', '.join(selected_municipalities)}")
     c.setFont("Helvetica", 12)
-    c.drawString(72, height - 100, f"Analysis Period: {start_year} to {end_year}")
+    c.drawString(100, 730, f"Analysis Period: {start_year} to {end_year}")
     
-    # Add data summary
-    c.drawString(72, height - 130, "Data Summary:")
-    c.drawString(72, height - 150, f"Number of rows in cleaned data: {df_cleaned.shape[0]}")
-    c.drawString(72, height - 170, f"Selected Municipalities: {', '.join(selected_municipalities)}")
-    
-    # Add a section for the analysis results
-    c.drawString(72, height - 200, "Analysis Results:")
-    
-    # Here you can include any textual or visual results from the analysis
-    c.drawString(72, height - 220, "Correlation Analysis:")
-    
-    # Generating correlation plot
-    corr_matrix = df_cleaned.corr()
-    plt.figure(figsize=(6, 5))
-    sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', fmt=".2f", cbar=True)
-    plt.tight_layout()
+    # Add Data Summary
+    c.drawString(100, 710, f"Data Summary:")
+    c.drawString(100, 690, f"Number of rows in cleaned data: {df_cleaned.shape[0]}")
+    c.drawString(100, 670, f"Selected Municipalities: {', '.join(selected_municipalities)}")
 
-    # Save the plot to the buffer
-    plot_buffer = BytesIO()
-    plt.savefig(plot_buffer, format='png')
-    plt.close()
-    
-    # Add the plot to the PDF
-    plot_buffer.seek(0)
-    c.drawImage(plot_buffer, 72, height - 500, width=500, height=300)
-    
-    # Add interpretation and summary text
-    c.setFont("Helvetica", 10)
-    text = """
-    The correlation heatmap shows the relationships between various agricultural factors.
-    Positive correlations suggest that as one factor increases, the other also increases, while negative correlations suggest the opposite.
+    # Filter only numeric columns to calculate correlation matrix
+    df_numeric = df_cleaned.select_dtypes(include=[np.number])
 
-    Based on the data analysis, it is evident that certain factors like area harvested, seed quality, and planting timing
-    strongly influence rice production outcomes. These insights will help guide the agricultural policies for the municipalities.
-    """
-    
-    c.drawString(72, height - 520, text)
+    # Check if numeric data exists
+    if not df_numeric.empty:
+        # Generate the correlation matrix
+        corr_matrix = df_numeric.corr()
+
+        # Plotting the heatmap
+        plt.figure(figsize=(8, 6))
+        sns.heatmap(corr_matrix, annot=True, fmt=".2f", cmap="coolwarm", cbar=True, square=True)
+        plt.title("Correlation Matrix")
+        
+        # Save the heatmap as an image in the buffer
+        heatmap_buffer = BytesIO()
+        plt.savefig(heatmap_buffer, format="png")
+        plt.close()
+
+        # Rewind buffer and insert the image into the PDF
+        heatmap_buffer.seek(0)
+        c.drawImage(heatmap_buffer, 100, 400, width=400, height=300)
+    else:
+        c.drawString(100, 650, "No numeric data available for correlation.")
+
+    # Add conclusion or additional results
+    c.drawString(100, 350, "Conclusion: This is an example report summary.")
     
     # Finalize the PDF
     c.showPage()
     c.save()
-    
-    # Get the PDF data from the buffer
+
+    # Return the PDF buffer
     buffer.seek(0)
     return buffer
 
@@ -78,30 +64,28 @@ def generate_pdf_report(df_cleaned, selected_municipalities, start_year, end_yea
 st.set_page_config(page_title="SARIMAX for Rice Production", page_icon=":ear_of_rice:", layout="wide")
 st.title("Application of SARIMAX for Agricultural Rice Production")
 
-# Check if dataframe is loaded
+# File uploader or dataset loading
 uploaded_file = st.sidebar.file_uploader("Upload your CSV file", type=["csv"])
 
 df = None
 
-# Check if an uploaded file exists or use the default dataset
 if uploaded_file:
-    df = pd.read_csv(uploaded_file)  # Read the uploaded file into a dataframe
+    df = pd.read_csv(uploaded_file)
     st.write("Dataset uploaded successfully!")
 else:
     default_path = "data/San Mateo Dataset.csv"
     if os.path.exists(default_path):
-        df = pd.read_csv(default_path)  # Load from the default path if the file exists or dataset
+        df = pd.read_csv(default_path)
         st.write("Using default dataset!")
     else:
         st.error("Please upload a dataset or make sure the default file exists.")
-        st.stop()  # Stop execution if no dataset
+        st.stop()
 
 # Check if dataframe is loaded
 if df is not None:
     # Objective 1: Data Cleaning & Municipality Selection
     df_cleaned, selected_municipalities, start_year, end_year = objective1(df)
 
-    # Only proceed if municipalities are selected
     if len(selected_municipalities) > 0:
         # Pass the cleaned data and municipalities to the SARIMAX model
         objective3_sarimax(df_cleaned, selected_municipalities, start_year, end_year)
@@ -113,13 +97,10 @@ if df is not None:
         # Pass cleaned data and selected municipalities to objective4
         objective4(df_cleaned, selected_municipalities, start_date, end_date)
         
-        # Generate the PDF report
+        # Generate the PDF report after the analysis
         report_buffer = generate_pdf_report(df_cleaned, selected_municipalities, start_year, end_year)
         
-        # Display the report text (optional)
-        st.write("Report generated successfully!")
-        
-        # Button to download the report as a PDF
+        # Button to download the PDF report
         st.download_button(
             label="Download Full Report",
             data=report_buffer,
