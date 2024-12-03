@@ -6,6 +6,7 @@ from obj1 import objective1
 from obj3Sarimax import objective3_sarimax
 from obj4 import objective4
 
+
 # Streamlit app configuration
 st.set_page_config(page_title="SARIMAX for Rice Production", page_icon=":ear_of_rice:", layout="wide")
 st.title("Application of SARIMAX for Agricultural Rice Production")
