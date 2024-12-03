@@ -1,4 +1,4 @@
-can you also create a button to print the whole report or all the out put of the result of the system import streamlit as st
+import streamlit as st
 import pandas as pd
 import os
 
