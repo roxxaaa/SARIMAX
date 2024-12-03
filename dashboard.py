@@ -1,9 +1,11 @@
 import streamlit as st
 import pandas as pd
 import os
+import seaborn as sns
+import matplotlib.pyplot as plt
 from obj1 import objective1
 from obj3Sarimax import objective3_sarimax
-from obj4 import objective4  # Import the updated objective4
+from obj4 import objective4
 
 # Import the generate_report function from report.py
 from report import generate_report  # New import
@@ -63,20 +65,24 @@ if df is not None:
         # Objective 4: Perform any additional analysis or actions
         objective4(df_cleaned, selected_municipalities, start_date, end_date)
         
-        # Display all system outputs first
-        st.write("Analysis complete! You can download the full report below.")
-
-        # Generate the PDF report after all outputs
-        report_file = generate_report(df_cleaned, selected_municipalities, start_year, end_year)
-
-        # Button to download the PDF report
-        with open(report_file, "rb") as f:
-            st.download_button(
-                label="Download Full Report",
-                data=f,
-                file_name="production_report.pdf",
-                mime="application/pdf"
-            )
+        # Check if df_cleaned is valid before generating the report
+        if df_cleaned is not None and not df_cleaned.empty:
+            st.write("df_cleaned is valid. Proceeding with report generation.")
+            # Generate the PDF report after all outputs
+            report_file = generate_report(df_cleaned, selected_municipalities, start_year, end_year)
+            
+            # Button to download the PDF report
+            with open(report_file, "rb") as f:
+                st.download_button(
+                    label="Download Full Report",
+                    data=f,
+                    file_name="production_report.pdf",
+                    mime="application/pdf"
+                )
+        else:
+            st.error("Error: Cleaned dataframe is invalid or empty.")
+            st.stop()  # Stop execution if dataframe is invalid
+            
     else:
         st.error("Error: Invalid data received. Please check the cleaning and selection steps.")
         st.stop()  # Stop execution if the data is invalid
