@@ -44,11 +44,11 @@ def objective4(df, selected_municipalities, start_date, end_date):
     correlation_matrix = df_numeric.corr()
 
     # Sidebar options to display the correlation matrix and heatmap
-    if st.sidebar.checkbox("Show Correlation Matrix"):
+    if st.sidebar.checkbox("Show Correlation Matrix", help="Display the correlation values between variables."):
         st.write(f"Correlation Matrix for {', '.join(selected_municipalities)}")
         st.write(correlation_matrix)
 
-    if st.sidebar.checkbox("Show Correlation Heatmap"):
+    if st.sidebar.checkbox("Show Correlation Heatmap", help="Visualize the correlation matrix as a heatmap."):
         st.subheader("Correlation Heatmap")
         fig, ax = plt.subplots(figsize=(12, 10))
         sns.heatmap(
@@ -69,7 +69,7 @@ def objective4(df, selected_municipalities, start_date, end_date):
 
     if not high_corr.empty:
         st.write("Strong correlations found:")
-        st.dataframe(high_corr)
+        st.dataframe(high_corr, help="Table of variable pairs with strong correlations.")
 
         # **Dynamic Key Takeaways**
         st.subheader("Key Takeaways for the Municipal Agricultural Office")
@@ -81,14 +81,11 @@ def objective4(df, selected_municipalities, start_date, end_date):
 
             # Generate natural language interpretations
             if "Production(MT)" in variable_2 or "Production(MT)" in variable_1:
-                st.write(f"- The relationship between **{variable_1}** and **{variable_2}** (correlation: {corr_value:.2f}) shows these factors are critical for total rice production.")
-                recommendations.append(f"Focus on improving practices related to **{variable_1}** and **{variable_2}** to increase rice yields.")
+                recommendations.append(f"Focus on improving practices related to **{variable_1}** and **{variable_2}** (correlation: {corr_value:.2f}) to enhance total rice production.")
             elif "Area_Harvested(Ha)" in variable_1 or "Area_Harvested(Ha)" in variable_2:
-                st.write(f"- A strong correlation between **{variable_1}** and **{variable_2}** (correlation: {corr_value:.2f}) suggests that expanding harvested areas can significantly improve production.")
-                recommendations.append(f"Encourage farmers to maximize the harvested area for better yields.")
+                recommendations.append(f"Encourage farmers to maximize the harvested area for better yields (correlation: {corr_value:.2f}).")
             elif "Planting_Date" in variable_1 or "Harvesting_Date" in variable_2:
-                st.write(f"- The correlation between **{variable_1}** and **{variable_2}** (correlation: {corr_value:.2f}) highlights the importance of proper timing for planting and harvesting.")
-                recommendations.append(f"Provide better guidance on planting and harvesting schedules to optimize production.")
+                recommendations.append(f"Provide better guidance on planting and harvesting schedules to optimize production (correlation: {corr_value:.2f}).")
 
     else:
         st.write("No strong correlations detected in the selected data.")
@@ -98,7 +95,6 @@ def objective4(df, selected_municipalities, start_date, end_date):
     st.subheader("Recommendations for Rice Production Growth")
     if recommendations:
         for i, rec in enumerate(recommendations, 1):
-            st.write(f"{i}. {rec}")
+            st.write(f"{i}. {rec}", help="Recommendations derived from the correlational analysis.")
     else:
         st.write("No actionable insights found. Collect more data or refine analysis criteria.")
-
