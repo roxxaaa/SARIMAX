@@ -6,9 +6,7 @@ import matplotlib.pyplot as plt
 from obj1 import objective1
 from obj3Sarimax import objective3_sarimax
 from obj4 import objective4
-
-# Import the generate_report function from report.py
-from report import generate_report  # Import the generate_report function
+from report import generate_report  # Importing the report generation function
 
 # Streamlit app configuration
 st.set_page_config(page_title="SARIMAX for Rice Production", page_icon=":ear_of_rice:", layout="wide")
@@ -35,7 +33,7 @@ if uploaded_file:
 else:
     default_path = "data/San Mateo Dataset.csv"
     if os.path.exists(default_path):
-        df = pd.read_csv(default_path)  # Load from the default path if the file exists or dataset
+        df = pd.read_csv(default_path)  # Load from the default path if the file exists
         st.write("Using default dataset!")
     else:
         st.error("Please upload a dataset or make sure the default file exists.")
