@@ -67,7 +67,19 @@ def objective4(df, selected_municipalities, start_date, end_date):
         (high_corr['Variable 1'] != high_corr['Variable 2'])
     ].drop_duplicates()
 
-    # Summarize Key Takeaways and Recommendations based on correlations
+    # Add an explanation about strong correlations summary
+    st.markdown("""
+    **Strong Correlations Summary**:
+    - A strong correlation refers to a relationship between two variables where the correlation coefficient is either above **0.7** or below **-0.7**. 
+    - Positive correlations (above 0.7) mean that as one variable increases, the other also increases. 
+    - Negative correlations (below -0.7) mean that as one variable increases, the other decreases. 
+    - These correlations are important because they help identify the factors that significantly influence rice production.
+
+    **Moderate Strong Correlations**:
+    - Moderate strong correlations fall between **0.5** and **0.7** or **-0.5** and **-0.7**. These correlations still suggest meaningful relationships, but they are not as pronounced as the strong ones.
+    """)
+
+    # Display the correlation summary
     if not high_corr.empty:
         st.write("Strong correlations found:")
         st.dataframe(high_corr)
@@ -77,19 +89,22 @@ def objective4(df, selected_municipalities, start_date, end_date):
         key_takeaways = []
 
         # Group key variables and summarize
-        if any(high_corr['Variable 1'].str.contains("Production(MT)")) or any(high_corr['Variable 2'].str.contains("Production(MT)")):
+        strong_correlation_variables = high_corr['Variable 1'].tolist() + high_corr['Variable 2'].tolist()
+
+        # Highlight the strongest correlations
+        if any(var in strong_correlation_variables for var in ["Production(MT)", "Total_Production(MT)"]):
             key_takeaways.append(
-                "The production of rice (Total_Production(MT)) is strongly influenced by various factors like the area harvested, seeds used, and timing of planting and harvesting."
+                "Total rice production is heavily influenced by factors like the area harvested, seed quality, and timing of planting and harvesting. These correlations are crucial for improving yield."
             )
         
-        if any(high_corr['Variable 1'].str.contains("Area_Harvested(Ha)")) or any(high_corr['Variable 2'].str.contains("Area_Harvested(Ha)")):
+        if any(var in strong_correlation_variables for var in ["Area_Harvested(Ha)", "Total_Area_Harvested(Ha)"]):
             key_takeaways.append(
-                "Expanding the harvested area is a key factor in boosting overall rice production. This is supported by strong correlations with total production."
+                "Expanding the harvested area is a strong driver of increased rice production. Policies supporting land use optimization can have a significant impact on overall yield."
             )
         
-        if any(high_corr['Variable 1'].str.contains("Planting_Date")) or any(high_corr['Variable 2'].str.contains("Harvesting_Date")):
+        if any(var in strong_correlation_variables for var in ["Planting_Date", "Harvesting_Date"]):
             key_takeaways.append(
-                "Proper timing of planting and harvesting is essential for maximizing yield. Timeliness shows a significant correlation with production."
+                "The timing of planting and harvesting plays a critical role in maximizing rice yields. Early or late planting can severely impact the final production."
             )
 
         # Display summarized Key Takeaways
@@ -101,19 +116,19 @@ def objective4(df, selected_municipalities, start_date, end_date):
         recommendations = []
 
         # Group recommendations based on correlations
-        if any(high_corr['Variable 1'].str.contains("Production(MT)")) or any(high_corr['Variable 2'].str.contains("Production(MT)")):
+        if any(var in strong_correlation_variables for var in ["Production(MT)", "Total_Production(MT)"]):
             recommendations.append(
-                "Focus on improving the factors that directly impact total production, such as the area harvested, seed quality, and efficient timing of planting and harvesting."
+                "Focus on improving seed quality, increasing the area harvested, and optimizing planting and harvesting schedules to enhance rice production."
             )
         
-        if any(high_corr['Variable 1'].str.contains("Area_Harvested(Ha)")) or any(high_corr['Variable 2'].str.contains("Area_Harvested(Ha)")):
+        if any(var in strong_correlation_variables for var in ["Area_Harvested(Ha)", "Total_Area_Harvested(Ha)"]):
             recommendations.append(
-                "Encourage farmers to increase the harvested area by optimizing land use and enhancing their capacity to cultivate more hectares."
+                "Encourage farmers to maximize land use by expanding the harvested area. Support programs that increase farmers' capacity to cultivate more hectares."
             )
         
-        if any(high_corr['Variable 1'].str.contains("Planting_Date")) or any(high_corr['Variable 2'].str.contains("Harvesting_Date")):
+        if any(var in strong_correlation_variables for var in ["Planting_Date", "Harvesting_Date"]):
             recommendations.append(
-                "Provide guidance on the best planting and harvesting times to optimize rice yield, ensuring that these activities align with the ideal environmental conditions."
+                "Provide guidance on ideal planting and harvesting times to ensure maximum yields. This could include region-specific recommendations based on historical data."
             )
 
         # Display summarized Recommendations
