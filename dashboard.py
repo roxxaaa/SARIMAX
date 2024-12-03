@@ -65,12 +65,22 @@ if df is not None:
         # Objective 4: Perform any additional analysis or actions
         objective4(df_cleaned, selected_municipalities, start_date, end_date)
         
-        # Generate the report after the analysis
-        report_file = generate_report(df_cleaned, selected_municipalities, start_year, end_year)
-        
-        # Display a message that the report is ready
-        st.write("The report has been generated. You can download it below:")
-        
+        # Display all system outputs first
+        st.write("Analysis complete! You can download the full report below.")
+
+        # Visualize correlation matrix and display it in the app
+        corr_matrix = df_cleaned.corr()  # Assuming df_cleaned has numerical data
+        plt.figure(figsize=(8, 6))
+        sns.heatmap(corr_matrix, annot=True, cmap="coolwarm", fmt=".2f")
+        plt.title("Correlation Matrix")
+        plt.tight_layout()
+
+        # Display the plot in the Streamlit app
+        st.pyplot(plt)
+
+        # Generate the PDF report after all outputs
+        report_file = generate_report(df_cleaned, selected_municipalities, start_year, end_year, corr_matrix)
+
         # Button to download the PDF report
         with open(report_file, "rb") as f:
             st.download_button(
