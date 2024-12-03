@@ -30,7 +30,7 @@ if uploaded_file:
     df = pd.read_csv(uploaded_file)  # Read the uploaded file into a dataframe
     st.write("Dataset uploaded successfully!")
 else:
-    default_path = "https://github.com/roxxaaa/SARIMAX/blob/f5871f4dd7ad0683f59d6382b70fdea892e1886d/data/aliciasanmateodatasets.csv.csv"
+    default_path = "data/San Mateo Dataset.csv"
     if os.path.exists(default_path):
         df = pd.read_csv(default_path)  # Load from the default path if the file exists or dataset
         st.write("Using default dataset!")
