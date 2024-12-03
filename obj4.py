@@ -72,9 +72,9 @@ def objective4(df, selected_municipalities, start_date, end_date):
         """)
 
         # Increase figure size for better readability
-        fig, ax = plt.subplots(figsize=(14, 12))
+        fig, ax = plt.subplots(figsize=(14, 12))  # Adjust the size for full coverage
         
-        # Create the heatmap with no gaps between cells (no linewidths)
+        # Create the heatmap with no gaps between cells (no linewidths), smooth color transition
         sns.heatmap(
             correlation_matrix, annot=True, fmt=".2f", cmap='coolwarm', 
             cbar=True, square=True, linewidths=0, ax=ax, 
