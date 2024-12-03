@@ -74,7 +74,7 @@ def objective4(df, selected_municipalities, start_date, end_date):
         # Increase figure size for better readability
         fig, ax = plt.subplots(figsize=(14, 12))
         
-        # Remove the lines between cells (linewidths=0) and set aspect to 'auto'
+        # Create the heatmap with no gaps between cells (no linewidths)
         sns.heatmap(
             correlation_matrix, annot=True, fmt=".2f", cmap='coolwarm', 
             cbar=True, square=True, linewidths=0, ax=ax, 
@@ -86,8 +86,8 @@ def objective4(df, selected_municipalities, start_date, end_date):
         # Set the title
         ax.set_title("Correlation Heatmap", fontsize=16)
         
-        # Remove the space between the heatmap cells and the plot
-        plt.tight_layout()  # Adjust layout to ensure no clipping
+        # Adjust layout to ensure no clipping and remove spacing between cells
+        plt.tight_layout()  # This adjusts the layout to remove any gaps
         st.pyplot(fig)
 
     # Extract strong correlations
