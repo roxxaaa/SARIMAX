@@ -3,7 +3,6 @@ import streamlit as st
 import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import LabelEncoder
-import plotly.express as px
 
 def objective4(df, selected_municipalities):
     st.sidebar.markdown("____________________________")
@@ -57,13 +56,13 @@ def objective4(df, selected_municipalities):
             square=True, 
             linewidths=.5, 
             annot_kws={"size": 10},  # Adjust the size of the annotation
-            ax=ax
+            ax=ax,
+            cbar_kws={'shrink': 0.8}  # Adjust color bar size
         )
         heatmap.set_xticklabels(heatmap.get_xticklabels(), rotation=45, horizontalalignment='right', fontsize=10)
         heatmap.set_yticklabels(heatmap.get_yticklabels(), fontsize=10)
         plt.title("Correlation Heatmap", fontsize=16)
         st.pyplot(fig)
-
 
     # Add correlation analysis summary focusing on Total Production (MT)
     st.subheader("Correlation Summary")
@@ -90,3 +89,12 @@ def objective4(df, selected_municipalities):
     - **Seasonal Variables**: Correlations between seasonal variables like season (Dry/Wet) and planting/harvesting dates with total production are analyzed here. Strong correlations would indicate these factors significantly impact production.
     - **Exogenous Variables**: Correlations between variables like rice ecosystem, area harvested, and seed types (certified, hybrid) with production. Strong correlations suggest these factors are important exogenous influences on production outcomes.
     """)
+
+# Ensure this part is correctly placed in your main Streamlit app code:
+if __name__ == '__main__':
+    # Load your cleaned dataframe (df_cleaned) and selected municipalities (selected_municipalities)
+    df_cleaned = pd.read_csv('your_data.csv')  # Replace with your actual data file path
+    selected_municipalities = ['SanMateo', 'OtherMunicipality']  # Replace with your selection of municipalities
+
+    # Call the function with correct arguments
+    objective4(df_cleaned, selected_municipalities)
