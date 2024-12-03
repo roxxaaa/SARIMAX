@@ -71,23 +71,28 @@ def objective4(df, selected_municipalities, start_date, end_date):
         - Negative correlations (below -0.7) mean that as one variable increases, the other decreases.
         """)
 
-        # Increase figure size for better readability
-        fig, ax = plt.subplots(figsize=(12, 10))  # Adjust the size for full coverage
-        
-        # Create the heatmap with no gaps between cells (no linewidths), smooth color transition
-        sns.heatmap(
-            correlation_matrix, annot=True, fmt=".2f", cmap='coolwarm', 
-            cbar=True, square=True, linewidths=0, ax=ax,  # No white gaps, continuous color
-            annot_kws={"size": 10}, 
-            cbar_kws={'shrink': 0.8},  # Optional: Adjust color bar size
-            xticklabels=True, yticklabels=True
+        # Create the heatmap with continuous gradient and no gaps
+        fig, ax = plt.subplots(figsize=(12, 10))  # Adjust figure size
+        heatmap = sns.heatmap(
+            correlation_matrix, 
+            annot=True, 
+            fmt=".2f",  # Limit to 2 decimal places
+            cmap='coolwarm', 
+            cbar=True, 
+            square=True, 
+            linewidths=.5,  # Lines between cells
+            annot_kws={"size": 10},  # Adjust the size of the annotation
+            ax=ax
         )
-        
-        # Set the title
-        ax.set_title("Correlation Heatmap", fontsize=16)
-        
-        # Adjust layout to ensure no clipping and remove spacing between cells
-        plt.tight_layout()  # This adjusts the layout to remove any gaps
+
+        # Rotate x and y axis labels for better readability
+        heatmap.set_xticklabels(heatmap.get_xticklabels(), rotation=45, horizontalalignment='right', fontsize=10)
+        heatmap.set_yticklabels(heatmap.get_yticklabels(), fontsize=10)
+
+        # Set title and adjust layout
+        plt.title("Correlation Heatmap", fontsize=16)
+        plt.tight_layout()  # Adjust the layout to avoid any clipping
+
         st.pyplot(fig)
 
     # Extract strong correlations
