@@ -43,30 +43,12 @@ def objective4(df, selected_municipalities, start_date, end_date):
     # Compute correlation matrix
     correlation_matrix = df_numeric.corr()
 
-    # Sidebar checkbox to display the Correlation Matrix for San Mateo
-    show_sanmateo_corr = st.sidebar.checkbox("Show Correlation Matrix for San Mateo", value=False)
-    
-    if show_sanmateo_corr and 'SanMateo' in selected_municipalities:
-        st.subheader("Correlation Matrix for San Mateo")
-        st.write(correlation_matrix)  # Display the correlation matrix for San Mateo
-
     # Sidebar checkbox to display the heatmap
     show_heatmap = st.sidebar.checkbox("Show Correlation Heatmap", value=True)
 
     if show_heatmap:
         st.subheader("Correlation Heatmap")
         
-        # Add tooltips for better user understanding
-        st.markdown("""
-        **Heatmap Explanation:**
-        - The color scale indicates the strength and direction of the correlation.
-        - A correlation value of **1** means perfect positive correlation, and **-1** means perfect negative correlation.
-        - A value around **0** indicates no correlation.
-        - Values **above 0.7** or **below -0.7** are considered strong correlations.
-        - Positive correlations (above 0.7) mean that as one variable increases, the other also increases. 
-        - Negative correlations (below -0.7) mean that as one variable increases, the other decreases.
-        """)
-
         # Create the heatmap with continuous gradient and no gaps
         fig, ax = plt.subplots(figsize=(12, 10))  # Adjust figure size
         heatmap = sns.heatmap(
@@ -93,7 +75,7 @@ def objective4(df, selected_municipalities, start_date, end_date):
         st.pyplot(fig)
 
     # Extract strong correlations
-    st.subheader("Strong Correlations Summary")
+    st.subheader("Strong Correlations")
     high_corr = correlation_matrix.unstack().reset_index()
     high_corr.columns = ['Variable 1', 'Variable 2', 'Correlation']
     high_corr = high_corr[
@@ -101,79 +83,13 @@ def objective4(df, selected_municipalities, start_date, end_date):
         (high_corr['Variable 1'] != high_corr['Variable 2'])
     ].drop_duplicates()
 
-    # Add an explanation about strong correlations summary
-    st.markdown("""
-    **Strong Correlations Summary**:
-    - A strong correlation refers to a relationship between two variables where the correlation coefficient is either above **0.7** or below **-0.7**. 
-    - Positive correlations (above 0.7) mean that as one variable increases, the other also increases. 
-    - Negative correlations (below -0.7) mean that as one variable increases, the other decreases. 
-    - These correlations are important because they help identify the factors that significantly influence rice production.
-    """)
-
-    # Display the correlation summary
+    # Display short summary
     if not high_corr.empty:
-        st.write("Strong correlations found:")
+        st.write("Strong correlations (above 0.7 or below -0.7) indicate significant relationships between factors influencing rice production.")
         st.dataframe(high_corr)
-
-        # **Summarize Key Takeaways**
-        st.subheader("Key Takeaways for the Municipal Agricultural Office")
-        key_takeaways = []
-
-        # Group key variables and summarize
-        strong_correlation_variables = high_corr['Variable 1'].tolist() + high_corr['Variable 2'].tolist()
-
-        # Highlight the strongest correlations
-        if any(var in strong_correlation_variables for var in ["Production(MT)", "Total_Production(MT)"]):
-            key_takeaways.append(
-                "The correlation between the area harvested, seed quality, and the timing of planting and harvesting shows a strong influence on total rice production. These factors are critical for improving yield."
-            )
-        
-        if any(var in strong_correlation_variables for var in ["Area_Harvested(Ha)", "Total_Area_Harvested(Ha)"]):
-            key_takeaways.append(
-                "Expanding the harvested area is a significant driver of increased rice production. Policies that encourage efficient land use could have a major impact on overall yield."
-            )
-        
-        if any(var in strong_correlation_variables for var in ["Planting_Date", "Harvesting_Date"]):
-            key_takeaways.append(
-                "The timing of planting and harvesting plays an essential role in maximizing rice yields. Ensuring optimal planting and harvesting dates could significantly improve production."
-            )
-
-        # Display summarized Key Takeaways
-        st.write("Key Takeaways Summary:")
-        st.write(" ".join(key_takeaways))
-
-        # **Summarize Recommendations for Rice Production Growth**
-        st.subheader("Recommendations for Rice Production Growth")
-        recommendations = []
-
-        # Group recommendations based on correlations
-        if any(var in strong_correlation_variables for var in ["Production(MT)", "Total_Production(MT)"]):
-            recommendations.append(
-                "Focus on improving seed quality, optimizing the harvested area, and providing better guidance on planting and harvesting schedules to enhance rice production."
-            )
-        
-        if any(var in strong_correlation_variables for var in ["Area_Harvested(Ha)", "Total_Area_Harvested(Ha)"]):
-            recommendations.append(
-                "Encourage farmers to maximize land use and expand the harvested area. Support programs that enable farmers to cultivate more hectares of land."
-            )
-        
-        if any(var in strong_correlation_variables for var in ["Planting_Date", "Harvesting_Date"]):
-            recommendations.append(
-                "Provide region-specific guidance on the best planting and harvesting times to ensure maximum yields. This could be based on historical climate and yield data."
-            )
-
-        # Display summarized Recommendations
-        st.write("Recommendations Summary:")
-        st.write(" ".join(recommendations))
-
     else:
-        st.write("No strong correlations detected in the selected data.")
-        st.subheader("Key Takeaways for the Municipal Agricultural Office")
-        st.write("Ensure data completeness and explore additional factors affecting rice production.")
-
-        st.subheader("Recommendations for Rice Production Growth")
-        st.write("No actionable insights found. Collect more data or refine analysis criteria.")
-
+        st.write("No strong correlations detected. Explore other factors affecting rice production.")
+        
     # Tooltips for better user understanding
     st.markdown("""
     **Tooltips for Key Variables**:
@@ -181,5 +97,5 @@ def objective4(df, selected_municipalities, start_date, end_date):
     - **Area_Harvested(Ha)**: Area of land harvested in hectares.
     - **Planting_Date**: The date when rice was planted.
     - **Harvesting_Date**: The date when rice was harvested.
-    - **Correlation Values**: A value above 0.7 or below -0.7 indicates a strong positive or negative relationship, respectively, between variables.
+    - **Correlation Values**: Strong positive correlations (> 0.7) mean both variables increase together, while negative correlations (< -0.7) mean one increases as the other decreases.
     """)
