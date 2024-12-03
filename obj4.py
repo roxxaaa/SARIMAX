@@ -67,7 +67,7 @@ def objective4(df, selected_municipalities, start_date, end_date):
         - Negative correlations (below -0.7) mean that as one variable increases, the other decreases.
         """)
 
-        # Create the heatmap with a polished look
+        # Create the heatmap with no gaps between cells
         fig, ax = plt.subplots(figsize=(14, 12))  # Adjust figure size for clarity
         heatmap = sns.heatmap(
             correlation_matrix, 
@@ -76,7 +76,7 @@ def objective4(df, selected_municipalities, start_date, end_date):
             cmap='coolwarm',  # Smooth color map, good for continuous values
             cbar=True,  # Display color bar
             square=True,  # Keep the plot square
-            linewidths=0.5,  # Thin border between cells
+            linewidths=0,  # Remove the cell borders (no gaps)
             annot_kws={"size": 12, "weight": 'bold', "color": 'black'},  # Clear and bold annotations
             cbar_kws={'shrink': 0.8, 'label': 'Correlation Value'},  # Colorbar adjustments
             ax=ax
