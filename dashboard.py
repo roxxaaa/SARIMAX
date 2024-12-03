@@ -1,17 +1,17 @@
-import streamlit as st
 import pandas as pd
+import streamlit as st
 import os
+from io import StringIO
 
 from obj1 import objective1
 from obj3Sarimax import objective3_sarimax
 from obj4 import objective4
 
-
 # Streamlit app configuration
 st.set_page_config(page_title="SARIMAX for Rice Production", page_icon=":ear_of_rice:", layout="wide")
 st.title("Application of SARIMAX for Agricultural Rice Production")
 st.write("Seasonal Auto-Regressive Integrated Moving Average with Exogenous Regressor")
- 
+
 # CSS for styling
 with open("app.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
@@ -54,5 +54,55 @@ if df is not None:
         
         # Pass cleaned data and selected municipalities to objective4
         objective4(df_cleaned, selected_municipalities, start_date, end_date)
+
+        # Add a button to download the full report
+        st.subheader("Download Full Report")
+        
+        # Generate the report as a string or CSV
+        report = generate_report(df_cleaned, selected_municipalities, start_year, end_year)
+        
+        # Create a download button
+        st.download_button(
+            label="Download Report",
+            data=report,
+            file_name="SARIMAX_Report.txt",  # Change to .csv or other formats if preferred
+            mime="text/plain"  # Change mime type for CSV, JSON, etc.
+        )
+
     else:
         st.warning("Please select at least one municipality to proceed with the analysis.")
+
+# Function to generate the report content
+def generate_report(df_cleaned, selected_municipalities, start_year, end_year):
+    report = StringIO()  # Using StringIO to generate text-based content
+
+    # Write the general info
+    report.write(f"Report: SARIMAX for Rice Production Analysis\n")
+    report.write(f"Selected Municipalities: {', '.join(selected_municipalities)}\n")
+    report.write(f"Start Year: {start_year}, End Year: {end_year}\n\n")
+    
+    # Add a summary of the cleaned dataset
+    report.write("Cleaned Dataset Summary:\n")
+    report.write(f"Rows: {df_cleaned.shape[0]}, Columns: {df_cleaned.shape[1]}\n\n")
+    
+    # Add data description (e.g., statistical summary of the cleaned data)
+    report.write("Data Description (Statistical Summary):\n")
+    report.write(df_cleaned.describe().to_string())
+    report.write("\n\n")
+    
+    # Include the results from objective3 (SARIMAX model output)
+    report.write("SARIMAX Model Output:\n")
+    # Add your SARIMAX model results here (can be output from objective3)
+    # report.write(str(sarimax_results))  # Example (add actual results)
+    
+    # Include results from objective4 (Correlation analysis, heatmaps)
+    report.write("Correlation Analysis:\n")
+    # Add correlation results here (can be output from objective4)
+    # report.write(str(correlation_matrix))  # Example (add actual results)
+    
+    # Add any additional information or summaries here
+    
+    # Finalize the report
+    report.seek(0)  # Rewind the StringIO buffer
+    return report.getvalue()  # Return the content of the report as a string
+
