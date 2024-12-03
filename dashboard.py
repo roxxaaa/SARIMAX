@@ -43,8 +43,8 @@ if df is not None:
     # Objective 1: Data Cleaning & Municipality Selection
     df_cleaned, selected_municipalities, start_year, end_year = objective1(df)
 
-    # Only proceed if municipalities are selected
-    if len(selected_municipalities) > 0:
+    # Check if required variables are defined
+    if df_cleaned is not None and len(selected_municipalities) > 0 and start_year and end_year:
         # Pass the required parameters to objective3_sarimax
         objective3_sarimax(df_cleaned, selected_municipalities, start_year, end_year)
         
@@ -59,21 +59,25 @@ if df is not None:
         st.subheader("Download Full Report")
         
         # Generate the report as a string or CSV
-        report = generate_report(df_cleaned, selected_municipalities, start_year, end_year)
-        
-        # Create a download button
-        st.download_button(
-            label="Download Report",
-            data=report,
-            file_name="SARIMAX_Report.txt",  # Change to .csv or other formats if preferred
-            mime="text/plain"  # Change mime type for CSV, JSON, etc.
-        )
-
+        try:
+            report = generate_report(df_cleaned, selected_municipalities, start_year, end_year)
+            # Create a download button
+            st.download_button(
+                label="Download Report",
+                data=report,
+                file_name="SARIMAX_Report.txt",  # Change to .csv or other formats if preferred
+                mime="text/plain"  # Change mime type for CSV, JSON, etc.
+            )
+        except Exception as e:
+            st.error(f"Error generating report: {str(e)}")
     else:
         st.warning("Please select at least one municipality to proceed with the analysis.")
 
 # Function to generate the report content
 def generate_report(df_cleaned, selected_municipalities, start_year, end_year):
+    if not df_cleaned or not selected_municipalities:
+        raise ValueError("Missing necessary data to generate the report")
+    
     report = StringIO()  # Using StringIO to generate text-based content
 
     # Write the general info
@@ -105,4 +109,3 @@ def generate_report(df_cleaned, selected_municipalities, start_year, end_year):
     # Finalize the report
     report.seek(0)  # Rewind the StringIO buffer
     return report.getvalue()  # Return the content of the report as a string
-
