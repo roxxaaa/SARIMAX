@@ -73,12 +73,20 @@ def objective4(df, selected_municipalities, start_date, end_date):
 
         # Increase figure size for better readability
         fig, ax = plt.subplots(figsize=(14, 12))
+        
+        # Remove the lines between cells (linewidths=0) and set aspect to 'auto'
         sns.heatmap(
             correlation_matrix, annot=True, fmt=".2f", cmap='coolwarm', 
-            cbar=True, square=True, linewidths=0.5, ax=ax, 
-            annot_kws={"size": 10}  # Adjust font size for readability
+            cbar=True, square=True, linewidths=0, ax=ax, 
+            annot_kws={"size": 10}, 
+            cbar_kws={'shrink': 0.8},  # Optional: Adjust color bar size
+            xticklabels=True, yticklabels=True
         )
+        
+        # Set the title
         ax.set_title("Correlation Heatmap", fontsize=16)
+        
+        # Remove the space between the heatmap cells and the plot
         plt.tight_layout()  # Adjust layout to ensure no clipping
         st.pyplot(fig)
 
