@@ -7,15 +7,11 @@ from reportlab.pdfgen import canvas
 import seaborn as sns
 import matplotlib.pyplot as plt
 
+# Import your functions correctly from their respective modules
+# Ensure that these files exist and are accessible
 from obj1 import objective1
 from obj3Sarimax import objective3_sarimax
 from obj4 import objective4
-
-# Assuming objective1, objective3_sarimax, and objective4 are correctly imported
-# If they are in different files, make sure to import them like this:
-# from obj1 import objective1
-# from obj3Sarimax import objective3_sarimax
-# from obj4 import objective4
 
 # Define the function to generate the PDF report
 def generate_report(df_cleaned, selected_municipalities, start_year, end_year):
