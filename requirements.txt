@@ -1,8 +1,8 @@
-streamlit
-pandas
-seaborn
-matplotlib
-reportlab
-statsmodels
-scikit-learn
-plotly
+streamlit==1.20.0  # Ensure you use the right Streamlit version
+pandas==2.0.3
+seaborn==0.11.3
+matplotlib==3.7.1
+reportlab==3.6.6
+statsmodels==0.13.5
+scikit-learn==1.2.1
+plotly==5.7.0
