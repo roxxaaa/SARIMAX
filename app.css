@@ -22,8 +22,8 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Centering all other text, markdown, tables, and metrics */
 body, .stApp, .stDataFrame, .stTable {
-    color: black !important; /* Change other font color to white */
-    text-align: center;
+    color: black !important; /* Change other font color to black */
+    text-align: center; /* Center the content within the table */
 }
 
 /* Custom styling for the sidebar collapse/expand button */
