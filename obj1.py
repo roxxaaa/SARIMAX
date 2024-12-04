@@ -1,9 +1,9 @@
 import pandas as pd
 import streamlit as st
+from generate_report import generate_report  # Add the import for generate_report
 
 def objective1(df):
     # Data Cleaning & Variable Identification
-    
     st.sidebar.markdown("### Data Cleaning and Variable Identification")
     st.sidebar.markdown("##### Add Columns, Filter, and Clean the Dataset")
     
@@ -77,6 +77,21 @@ def objective1(df):
             st.subheader(f"Seasonal Variables and Exogenous Regressors for {', '.join(selected_municipalities)}")
             st.markdown("The following data provides seasonal and exogenous variable insights.")
             st.dataframe(filtered_df[['Year', 'Municipality', 'Season', 'Rice_Ecosystem', 'Planting_Date', 'Harvesting_Date']].head(100))
+
+            # Calculate the correlation matrix for the selected data
+            corr_matrix = filtered_df.corr()
+
+            # Generate the report and pass the required arguments
+            report_file = generate_report(filtered_df, selected_municipalities, corr_matrix)
+
+            # Provide the option to download the generated report
+            with open(report_file, "rb") as f:
+                st.download_button(
+                    label="Download Report",
+                    data=f,
+                    file_name="report.pdf",
+                    mime="application/pdf"
+                )
     else:
         st.warning("Municipality column is not found in the dataset!")
     
