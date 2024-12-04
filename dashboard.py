@@ -57,7 +57,7 @@ if df is not None:
         corr_matrix = df_cleaned.corr()  # Assuming corr_matrix is derived from df_cleaned
 
         # Generate the report and pass the required arguments to generate_report()
-        report_file = generate_report(df_cleaned, selected_municipalities, corr_matrix)
+        report_file = generate_report(df_cleaned, selected_municipalities, start_year, end_year, corr_matrix)
 
         # Provide the option to download the generated report
         with open(report_file, "rb") as f:
