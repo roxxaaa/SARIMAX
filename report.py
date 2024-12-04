@@ -1,73 +1,64 @@
-import streamlit as st
-import pandas as pd
-import os
-from obj1 import objective1
-from obj3Sarimax import objective3_sarimax
-from report import generate_report  # Import the generate_report function from report.py
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+import io
 
-# Streamlit app configuration
-st.set_page_config(page_title="SARIMAX for Rice Production", page_icon=":ear_of_rice:", layout="wide")
-st.title("Application of SARIMAX for Agricultural Rice Production")
-st.write("Seasonal Auto-Regressive Integrated Moving Average with Exogenous Regressor")
+# The function to generate the report
+def generate_report(df, selected_municipalities, start_year, end_year, corr_matrix):
+    # Create a PDF in memory
+    buffer = io.BytesIO()
+    c = canvas.Canvas(buffer, pagesize=letter)
+    width, height = letter  # get the dimensions of the page
 
-# CSS for styling
-with open("app.css") as f:
-    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+    # Add the title to the PDF
+    c.setFont("Helvetica-Bold", 16)
+    c.drawString(100, height - 50, "Rice Production Report")  # Adjusted title position
+    c.setFont("Helvetica", 12)
 
-# Sidebar for file uploader or default dataset
-st.sidebar.image("images/DALogo.jpg", use_container_width=True)
+    # Adding system info
+    c.drawString(100, height - 70, f"Date Range: {start_year} - {end_year}")
+    c.drawString(100, height - 90, f"Municipalities: {', '.join(selected_municipalities)}")
 
-# File uploader or default dataset handling
-uploaded_file = st.sidebar.file_uploader("Upload your CSV file", type=["csv"])
+    # Add summary of data cleaning
+    c.drawString(100, height - 120, "Summary of Data Cleaning and Selection Process:")
+    c.drawString(100, height - 140, f"Number of records selected: {len(df)}")
 
-# Initialize the 'df' variable
-df = None
+    # Start printing correlation matrix
+    c.drawString(100, height - 160, "Correlation Matrix:")
 
-# Check if an uploaded file exists or use the default path
-if uploaded_file:
-    df = pd.read_csv(uploaded_file)  # Read the uploaded file into a dataframe
-    st.write("Dataset uploaded successfully!")
-else:
-    default_path = "data/San Mateo Dataset.csv"
-    if os.path.exists(default_path):
-        df = pd.read_csv(default_path)  # Load from the default path if the file exists or dataset
-        st.write("Using default dataset!")
-    else:
-        st.error("Please upload a dataset or make sure the default file exists.")
-        st.stop()  # Stop execution if no dataset
+    # Adjust Y position for the matrix
+    y_position = height - 180
 
-# Ensure the dataframe is loaded
-if df is not None:
-    # Objective 1: Data Cleaning & Municipality Selection
-    df_cleaned, selected_municipalities, start_year, end_year = objective1(df)
+    # Add headers for the correlation matrix
+    c.setFont("Helvetica-Bold", 10)
+    for col in corr_matrix.columns:
+        c.drawString(100, y_position, col)
+        y_position -= 12  # Reduce Y after header
+        if y_position < 100:  # If the content exceeds page height, add a new page
+            c.showPage()
+            c.setFont("Helvetica", 10)
+            y_position = height - 50  # Reset Y position for new page
+            c.drawString(100, y_position, "Correlation Matrix (Continued):")
+            y_position -= 20
 
-    # Debugging output: Check the values returned by objective1
-    st.write("Checking variables:")
-    st.write("df_cleaned:", df_cleaned)
-    st.write("selected_municipalities:", selected_municipalities)
-    st.write("start_year:", start_year)
-    st.write("end_year:", end_year)
+    # Add matrix values to the report
+    c.setFont("Helvetica", 10)
+    for i, col in enumerate(corr_matrix.columns):
+        y_position -= 15
+        c.drawString(100, y_position, f"{col}:")
+        for j, value in enumerate(corr_matrix[col]):
+            c.drawString(130, y_position, f"{value:.2f}")
+            y_position -= 15
+            if y_position < 100:  # Page overflow check
+                c.showPage()
+                c.setFont("Helvetica", 10)
+                y_position = height - 50  # Reset Y position for new page
+                c.drawString(100, y_position, f"Correlation Matrix (Continued from {col}):")
+                y_position -= 20
 
-    # Ensure that the data is valid before proceeding
-    if df_cleaned is not None and len(selected_municipalities) > 0 and isinstance(start_year, int) and isinstance(end_year, int):
-        # Objective 3: Apply SARIMAX model
-        objective3_sarimax(df_cleaned, selected_municipalities, start_year, end_year)
-        
-        # Calculate correlation matrix (corr_matrix) for report
-        corr_matrix = df_cleaned.corr()  # Assuming corr_matrix is derived from df_cleaned
-        st.write("Correlation Matrix:")
-        st.write(corr_matrix)
+    # Save the PDF
+    c.showPage()
+    c.save()
 
-        # Generate the report and pass the required arguments to generate_report()
-        report_file = generate_report(df_cleaned, selected_municipalities, corr_matrix)
-
-        # Provide the option to download the generated report
-        with open(report_file, "rb") as f:
-            st.download_button(
-                label="Download Report",
-                data=f,
-                file_name="report.pdf",
-                mime="application/pdf"
-            )
-    else:
-        st.error("Data is invalid. Please check the dataset and selections.")
+    # Return the buffer containing the PDF
+    buffer.seek(0)
+    return buffer
