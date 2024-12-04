@@ -1,6 +1,6 @@
 import pandas as pd
 import streamlit as st
-from generate_report import generate_report  # Add the import for generate_report
+from generate_report import generate_report  # Ensure this is imported correctly
 
 def objective1(df):
     # Data Cleaning & Variable Identification
@@ -81,7 +81,7 @@ def objective1(df):
             # Calculate the correlation matrix for the selected data
             corr_matrix = filtered_df.corr()
 
-            # Generate the report and pass the required arguments
+            # Generate the report and pass the required arguments, including the corr_matrix
             report_file = generate_report(filtered_df, selected_municipalities, corr_matrix)
 
             # Provide the option to download the generated report
