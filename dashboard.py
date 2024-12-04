@@ -1,14 +1,9 @@
 import streamlit as st
 import pandas as pd
 import os
-import seaborn as sns
-import matplotlib.pyplot as plt
 from obj1 import objective1
 from obj3Sarimax import objective3_sarimax
-from obj4 import objective4
-
-# Import the generate_report function from report.py
-from report import generate_report  # New import
+from report import generate_report  # Import the generate_report function from report.py
 
 # Streamlit app configuration
 st.set_page_config(page_title="SARIMAX for Rice Production", page_icon=":ear_of_rice:", layout="wide")
@@ -58,5 +53,19 @@ if df is not None:
         # Objective 3: Apply SARIMAX model
         objective3_sarimax(df_cleaned, selected_municipalities, start_year, end_year)
         
-        # Ensure dates for start and end year if objective4 needs date type
-        start_date = pd.to_dat
+        # Calculate correlation matrix (corr_matrix) for report
+        corr_matrix = df_cleaned.corr()  # Assuming corr_matrix is derived from df_cleaned
+
+        # Generate the report and pass the required arguments to generate_report()
+        report_file = generate_report(df_cleaned, selected_municipalities, corr_matrix)
+
+        # Provide the option to download the generated report
+        with open(report_file, "rb") as f:
+            st.download_button(
+                label="Download Report",
+                data=f,
+                file_name="report.pdf",
+                mime="application/pdf"
+            )
+    else:
+        st.error("Data is invalid. Please check the dataset and selections.")
