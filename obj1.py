@@ -81,17 +81,7 @@ def objective1(df):
             # Calculate the correlation matrix for the selected data
             corr_matrix = filtered_df.corr()
 
-            # Generate the report and pass the required arguments, including the corr_matrix
-            report_file = generate_report(filtered_df, selected_municipalities, corr_matrix)
-
-            # Provide the option to download the generated report
-            with open(report_file, "rb") as f:
-                st.download_button(
-                    label="Download Report",
-                    data=f,
-                    file_name="report.pdf",
-                    mime="application/pdf"
-                )
+         
     else:
         st.warning("Municipality column is not found in the dataset!")
     
