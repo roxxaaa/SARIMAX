@@ -1,4 +1,4 @@
-import pandas as pd
+import pandas as pd 
 import streamlit as st
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -9,12 +9,12 @@ def objective4(df, selected_municipalities, start_date, end_date):
 
     # Filter data based on user inputs
     df = df[
-        (df['Municipality'].isin(selected_municipalities)) &
-        (pd.to_datetime(df['Planting_Date']) >= pd.to_datetime(start_date)) &
+        (df['Municipality'].isin(selected_municipalities)) & 
+        (pd.to_datetime(df['Planting_Date']) >= pd.to_datetime(start_date)) & 
         (pd.to_datetime(df['Harvesting_Date']) <= pd.to_datetime(end_date))
     ]
 
-    # Encode categorical variables (like 'Season') as numbers
+    # Encode categorical variables (e.g., 'Season') as numbers
     if 'Season' in df.columns:
         label_encoder = LabelEncoder()
         df['Season'] = label_encoder.fit_transform(df['Season'].astype(str))
@@ -43,19 +43,63 @@ def objective4(df, selected_municipalities, start_date, end_date):
     # Compute correlation matrix
     correlation_matrix = df_numeric.corr()
 
-    # Sidebar options to display the correlation matrix and heatmap
-    if st.sidebar.checkbox("Show Correlation Matrix"):
-        st.write(f"Correlation Matrix for {', '.join(selected_municipalities)}")
-        st.write(correlation_matrix)
+    # Sidebar checkbox to display the Correlation Matrix for San Mateo
+    show_sanmateo_corr = st.sidebar.checkbox("Show Correlation Matrix for San Mateo", value=False)
+    
+    if show_sanmateo_corr and 'SanMateo' in selected_municipalities:
+        st.subheader("Correlation Matrix for San Mateo")
+        st.write(correlation_matrix)  # Display the correlation matrix for San Mateo
 
-    if st.sidebar.checkbox("Show Correlation Heatmap"):
+    # Sidebar checkbox to display the heatmap
+    show_heatmap = st.sidebar.checkbox("Show Correlation Heatmap", value=True)
+
+    if show_heatmap:
         st.subheader("Correlation Heatmap")
-        fig, ax = plt.subplots(figsize=(12, 10))
-        sns.heatmap(
-            correlation_matrix, annot=True, fmt=".2f", cmap='coolwarm', 
-            cbar=True, square=True, linewidths=0.5, ax=ax
+        
+        # Add tooltips for better user understanding
+        st.markdown("""  
+        **Heatmap Explanation:**
+        - The color scale indicates the strength and direction of the correlation.
+        - A correlation value of **1** means perfect positive correlation, and **-1** means perfect negative correlation.
+        - A value around **0** indicates no correlation.
+        - Values **above 0.7** or **below -0.7** are considered strong correlations.
+        - Positive correlations (above 0.7) mean that as one variable increases, the other also increases. 
+        - Negative correlations (below -0.7) mean that as one variable increases, the other decreases.
+        """)
+
+        # Create the heatmap with no gaps between cells
+        fig, ax = plt.subplots(figsize=(14, 12))  # Adjust figure size for clarity
+        heatmap = sns.heatmap(
+            correlation_matrix, 
+            annot=True,  # Display correlation values
+            fmt=".2f",  # Limit to 2 decimal places
+            cmap='coolwarm',  # Subtle smooth color map
+            cbar=True,  # Display color bar
+            square=True,  # Keep the plot square
+            linewidths=0,  # No gaps between cells
+            linecolor='black',  # Ensure no visible grid lines
+            annot_kws={"size": 12, "weight": 'bold', "color": 'black'},  # Clear and bold annotations
+            cbar_kws={'shrink': 0.8, 'label': 'Correlation Value'},  # Colorbar adjustments
+            ax=ax,
+            xticklabels=True,
+            yticklabels=True
         )
-        ax.set_title("Correlation Heatmap", fontsize=16)
+
+        # Remove gridlines and adjust the layout to make the cells look filled
+        heatmap.grid(False)
+
+        # Rotate x and y axis labels for better readability
+        heatmap.set_xticklabels(heatmap.get_xticklabels(), rotation=45, horizontalalignment='right', fontsize=12)
+        heatmap.set_yticklabels(heatmap.get_yticklabels(), fontsize=12)
+
+        # Set background color and adjust layout for full-fill
+        ax.set_facecolor('white')  # Ensure background color is white or any color you prefer
+
+        # Add a title and adjust layout for the best fit
+        plt.title("Correlation Heatmap", fontsize=18)
+        plt.tight_layout()  # Adjust layout to prevent clipping
+
+        # Display the heatmap
         st.pyplot(fig)
 
     # Extract strong correlations
@@ -63,42 +107,86 @@ def objective4(df, selected_municipalities, start_date, end_date):
     high_corr = correlation_matrix.unstack().reset_index()
     high_corr.columns = ['Variable 1', 'Variable 2', 'Correlation']
     high_corr = high_corr[
-        ((high_corr['Correlation'] > 0.7) | (high_corr['Correlation'] < -0.7)) &
+        ((high_corr['Correlation'] > 0.7) | (high_corr['Correlation'] < -0.7)) & 
         (high_corr['Variable 1'] != high_corr['Variable 2'])
     ].drop_duplicates()
 
+    # Add an explanation about strong correlations summary
+    st.markdown("""
+    **Strong Correlations Summary**:
+    - Strong correlations (above 0.7 or below -0.7) indicate significant relationships between factors influencing rice production.
+    """)
+
+    # Display the correlation summary
     if not high_corr.empty:
         st.write("Strong correlations found:")
         st.dataframe(high_corr)
 
-        # **Dynamic Key Takeaways**
+        # **Summarize Key Takeaways**
         st.subheader("Key Takeaways for the Municipal Agricultural Office")
-        recommendations = []
-        for _, row in high_corr.iterrows():
-            variable_1 = row['Variable 1']
-            variable_2 = row['Variable 2']
-            corr_value = row['Correlation']
+        key_takeaways = []
 
-            # Generate natural language interpretations
-            if "Production(MT)" in variable_2 or "Production(MT)" in variable_1:
-                st.write(f"- The relationship between **{variable_1}** and **{variable_2}** (correlation: {corr_value:.2f}) shows these factors are critical for total rice production.")
-                recommendations.append(f"Focus on improving practices related to **{variable_1}** and **{variable_2}** to increase rice yields.")
-            elif "Area_Harvested(Ha)" in variable_1 or "Area_Harvested(Ha)" in variable_2:
-                st.write(f"- A strong correlation between **{variable_1}** and **{variable_2}** (correlation: {corr_value:.2f}) suggests that expanding harvested areas can significantly improve production.")
-                recommendations.append(f"Encourage farmers to maximize the harvested area for better yields.")
-            elif "Planting_Date" in variable_1 or "Harvesting_Date" in variable_2:
-                st.write(f"- The correlation between **{variable_1}** and **{variable_2}** (correlation: {corr_value:.2f}) highlights the importance of proper timing for planting and harvesting.")
-                recommendations.append(f"Provide better guidance on planting and harvesting schedules to optimize production.")
+        # Group key variables and summarize
+        strong_correlation_variables = high_corr['Variable 1'].tolist() + high_corr['Variable 2'].tolist()
+
+        # Highlight the strongest correlations
+        if any(var in strong_correlation_variables for var in ["Production(MT)", "Total_Production(MT)"]):
+            key_takeaways.append(
+                "The correlation between the area harvested, seed quality, and the timing of planting and harvesting shows a strong influence on total rice production. These factors are critical for improving yield."
+            )
+        
+        if any(var in strong_correlation_variables for var in ["Area_Harvested(Ha)", "Total_Area_Harvested(Ha)"]):
+            key_takeaways.append(
+                "Expanding the harvested area is a significant driver of increased rice production. Policies that encourage efficient land use could have a major impact on overall yield."
+            )
+        
+        if any(var in strong_correlation_variables for var in ["Planting_Date", "Harvesting_Date"]):
+            key_takeaways.append(
+                "The timing of planting and harvesting plays an essential role in maximizing rice yields. Ensuring optimal planting and harvesting dates could significantly improve production."
+            )
+
+        # Display summarized Key Takeaways
+        st.write("Key Takeaways Summary:")
+        st.write(" ".join(key_takeaways))
+
+        # **Summarize Recommendations for Rice Production Growth**
+        st.subheader("Recommendations for Rice Production Growth")
+        recommendations = []
+
+        # Group recommendations based on correlations
+        if any(var in strong_correlation_variables for var in ["Production(MT)", "Total_Production(MT)"]):
+            recommendations.append(
+                "Focus on improving seed quality, optimizing the harvested area, and providing better guidance on planting and harvesting schedules to enhance rice production."
+            )
+        
+        if any(var in strong_correlation_variables for var in ["Area_Harvested(Ha)", "Total_Area_Harvested(Ha)"]):
+            recommendations.append(
+                "Encourage farmers to maximize land use and expand the harvested area. Support programs that enable farmers to cultivate more hectares of land."
+            )
+        
+        if any(var in strong_correlation_variables for var in ["Planting_Date", "Harvesting_Date"]):
+            recommendations.append(
+                "Provide region-specific guidance on the best planting and harvesting times to ensure maximum yields. This could be based on historical climate and yield data."
+            )
+
+        # Display summarized Recommendations
+        st.write("Recommendations Summary:")
+        st.write(" ".join(recommendations))
 
     else:
         st.write("No strong correlations detected in the selected data.")
-        recommendations = ["Ensure data completeness and explore additional factors affecting rice production."]
+        st.subheader("Key Takeaways for the Municipal Agricultural Office")
+        st.write("Ensure data completeness and explore additional factors affecting rice production.")
 
-    # **Dynamic Recommendations Based on Correlations**
-    st.subheader("Recommendations for Rice Production Growth")
-    if recommendations:
-        for i, rec in enumerate(recommendations, 1):
-            st.write(f"{i}. {rec}")
-    else:
+        st.subheader("Recommendations for Rice Production Growth")
         st.write("No actionable insights found. Collect more data or refine analysis criteria.")
 
+    # Tooltips for better user understanding
+    st.markdown("""
+    **Tooltips for Key Variables**:
+    - **Production(MT)**: Total rice production in metric tons.
+    - **Area_Harvested(Ha)**: Area of land harvested in hectares.
+    - **Planting_Date**: The date when rice was planted.
+    - **Harvesting_Date**: The date when rice was harvested.
+    - **Correlation Values**: A value above 0.7 or below -0.7 indicates a strong positive or negative relationship, respectively, between variables.
+    """)
