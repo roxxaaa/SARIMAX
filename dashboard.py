@@ -1,117 +1,57 @@
 import streamlit as st
-import numpy as np
 import pandas as pd
-import plotly.graph_objects as go
-from statsmodels.tsa.statespace.sarimax import SARIMAX
+import os
 
-def objective3_sarimax(df, selected_municipalities, start_year, end_year):
-    st.markdown("<h2 style='text-align: center; color: white;'>SARIMAX Forecast</h2>", unsafe_allow_html=True)
-    st.write("Forecasting Production with Seasonal and Exogenous Variables")
-    
-    st.sidebar.title("SARIMAX Forecast Settings")
-    forecast_years_sarimax = st.sidebar.slider(
-        "Forecast period (years):", min_value=1, max_value=5, value=3, step=1,
-        help="Choose the forecast period for production."
-    )
+from obj1 import objective1
+from obj3Sarimax import objective3_sarimax
+from obj4 import objective4
 
-    # Filter the dataframe based on the selected year range
-    df = df[(df['Year'] >= start_year) & (df['Year'] <= end_year)]
+# Streamlit app configuration
+st.set_page_config(page_title="SARIMAX for Rice Production", page_icon=":ear_of_rice:", layout="wide")
+st.title("Application of SARIMAX for Agricultural Rice Production")
+st.write("Seasonal Auto-Regressive Integrated Moving Average with Exogenous Regressor")
 
-    # Define exogenous variables to include in the model
-    exogenous_vars = ['Season', 'Rice_Ecosystem', 'Certified_Seeds_Area_Harvested(Ha)', 
-                      'Hybrid_Seeds_Area_Harvested_(Ha)', 'Total_Area_Harvested(Ha)']
-    exogenous_vars_present = [var for var in exogenous_vars if var in df.columns]
+# CSS for styling
+with open("C:/Users/ACER/AppData/Local/Programs/Python/Python312/STREAMLIT/app/app.css") as f:
+    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
-    if not exogenous_vars_present:
-        st.error("No exogenous variables found in the dataset. Check your data.")
-        return
+# Sidebar for file uploader or default dataset
+st.sidebar.image("C:/Users/ACER/AppData/Local/Programs/Python/Python312/STREAMLIT/images/DALogo.jpg", use_column_width=True)
 
-    for municipality in selected_municipalities:
-        muni_df = df[df['Municipality'] == municipality]
+# File uploader or default dataset handling
+uploaded_file = st.sidebar.file_uploader("Upload your CSV file", type=["csv"])
+
+# Initialize the 'df' variable
+df = None
+
+# Check if an uploaded file exists or use the default path
+if uploaded_file:
+    df = pd.read_csv(uploaded_file)  # Read the uploaded file into a dataframe
+    st.write("Dataset uploaded successfully!")
+else:
+    default_path = "C:/Users/ACER/AppData/Local/Programs/Python/Python312/STREAMLIT/data/aliciasanmateodatasets.csv"
+    if os.path.exists(default_path):
+        df = pd.read_csv(default_path)  # Load from the default path if the file exists or dataset
+        st.write("Using default dataset!")
+    else:
+        st.error("Please upload a dataset or make sure the default file exists.")
+        st.stop()  # Stop execution if no dataset
+
+# Check if dataframe is loaded
+if df is not None:
+    # Objective 1: Data Cleaning & Municipality Selection
+    df_cleaned, selected_municipalities, start_year, end_year = objective1(df)
+
+    # Only proceed if municipalities are selected
+    if len(selected_municipalities) > 0:
+        # Pass the required parameters to objective3_sarimax
+        objective3_sarimax(df_cleaned, selected_municipalities, start_year, end_year)
         
-        if muni_df.empty:
-            st.warning(f"No data available for {municipality} in the chosen date range.")
-            continue
-
-        # Extract production data and exogenous variables
-        years = muni_df['Year'].values
-        production = muni_df['Total_Production(MT)'].values
-
-        # Ensure exog data is numeric and handle missing values
-        exog_data = muni_df[exogenous_vars_present].copy()
-        exog_data = exog_data.apply(pd.to_numeric, errors='coerce').fillna(0).values  # Convert to numeric and fill NaNs
+        # Ensure dates for start and end year if objective4 needs date type
+        start_date = pd.to_datetime(f"{start_year}-01-01")
+        end_date = pd.to_datetime(f"{end_year}-12-31")
         
-        # Check for non-numeric entries and convert them to zero
-        if np.isnan(exog_data).any() or np.isinf(exog_data).any():
-            st.warning(f"Non-numeric or infinite values in exogenous variables for {municipality} were replaced with zero.")
-            exog_data = np.nan_to_num(exog_data, nan=0.0, posinf=0.0, neginf=0.0)
-
-        # Fit the SARIMAX model
-        try:
-            model = SARIMAX(production, exog=exog_data, order=(1, 1, 1), seasonal_order=(1, 1, 1, 12))
-            fit_model = model.fit(disp=False)
-        except ValueError as e:
-            st.error(f"Error fitting SARIMAX model for {municipality}: {e}")
-            continue
-
-        # Forecast for future years
-        future_exog = np.tile(exog_data[-1, :], (forecast_years_sarimax, 1))
-        forecast_years = np.arange(years[-1] + 1, years[-1] + forecast_years_sarimax + 1)
-        forecast_values = fit_model.forecast(steps=forecast_years_sarimax, exog=future_exog)
-
-        # Combine data for smooth lines
-        full_years = np.concatenate((years, forecast_years))
-        full_production = np.concatenate((production, forecast_values))
-        residual_years = np.concatenate(([years[-1]], forecast_years))
-        residual_values = np.concatenate(([production[-1]], forecast_values))
-
-        # Visualization
-        fig = go.Figure()
-
-        # Historical data (blue)
-        fig.add_trace(go.Scatter(
-            x=years, y=production,
-            mode='lines', name='Historical Production',
-            line=dict(color='blue'),
-            hovertemplate='Year: %{x}<br>Historical Production: %{y:.2f} MT'
-        ))
-
-        # Residual data (green)
-        fig.add_trace(go.Scatter(
-            x=residual_years, y=residual_values,
-            mode='lines', name='Residual Production',
-            line=dict(color='green'),
-            hovertemplate='Year: %{x}<br>Residual Production: %{y:.2f} MT'
-        ))
-
-        # Forecasted data (red)
-        fig.add_trace(go.Scatter(
-            x=forecast_years, y=forecast_values,
-            mode='lines', name='Forecasted Production',
-            line=dict(color='red'),
-            hovertemplate='Year: %{x}<br>Forecasted Production: %{y:.2f} MT'
-        ))
-
-        # Layout
-        fig.update_layout(
-            title=f"SARIMAX Forecast for {municipality}",
-            xaxis_title="Year",
-            yaxis_title="Total Production (MT)",
-            legend_title="Data",
-            hovermode="x unified",
-            template="plotly_dark"
-        )
-        st.plotly_chart(fig)
-        
-        # Interpretation
-        historical_trend = "increasing" if production[-1] > production[0] else "decreasing" if production[-1] < production[0] else "stable"
-        forecast_trend = "increasing" if forecast_values[-1] > production[-1] else "decreasing" if forecast_values[-1] < production[-1] else "stable"
-        avg_growth_rate = (forecast_values[-1] - production[-1]) / forecast_years_sarimax if forecast_years_sarimax > 0 else 0
-
-        st.markdown(f"""
-            **Dynamic Interpretation for {municipality}:**
-            - **Historical Trend:** The historical production trend from {years[0]} to {years[-1]} has been **{historical_trend}**.
-            - **Forecast Trend:** The forecasted production over the next {forecast_years_sarimax} year(s) is expected to be **{forecast_trend}**.
-            - **Growth Rate:** The average annual change in production is approximately **{avg_growth_rate:.2f} MT/year**.
-            - **Key Insight:** If the forecast trend continues, by {forecast_years[-1]}, production is projected to reach **{forecast_values[-1]:.2f} MT**, which could impact planning for resource allocation and agricultural strategies.
-        """)
+        # Pass cleaned data and selected municipalities to objective4
+        objective4(df_cleaned, selected_municipalities, start_date, end_date)
+    else:
+        st.warning("Please select at least one municipality to proceed with the analysis.")
