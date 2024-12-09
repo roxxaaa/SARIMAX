@@ -3,6 +3,7 @@ import streamlit as st
 
 def objective1(df):
     # Data Cleaning & Variable Identification
+    
     st.sidebar.markdown("### Data Cleaning and Variable Identification")
     st.sidebar.markdown("##### Add Columns, Filter, and Clean the Dataset")
     
@@ -76,8 +77,6 @@ def objective1(df):
             st.subheader(f"Seasonal Variables and Exogenous Regressors for {', '.join(selected_municipalities)}")
             st.markdown("The following data provides seasonal and exogenous variable insights.")
             st.dataframe(filtered_df[['Year', 'Municipality', 'Season', 'Rice_Ecosystem', 'Planting_Date', 'Harvesting_Date']].head(100))
-
-         
     else:
         st.warning("Municipality column is not found in the dataset!")
     
