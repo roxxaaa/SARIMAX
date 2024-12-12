@@ -29,7 +29,7 @@ if uploaded_file:
     df = pd.read_csv(uploaded_file)  # Read the uploaded file into a dataframe
     st.write("Dataset uploaded successfully!")
 else:
-    default_path = "data/San Mateo Dataset.csv"
+    default_path = "data/smdatasets.csv"
     if os.path.exists(default_path):
         df = pd.read_csv(default_path)  # Load from the default path if the file exists or dataset
         st.write("Using default dataset!")
